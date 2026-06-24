@@ -184,13 +184,19 @@ class Mavo_TOC {
 
 		$options = self::get_options();
 
+		$trace        = wp_debug_backtrace_summary( null, 0, false );
+		$current_hook = is_array( $GLOBALS['wp_current_filter'] ?? null ) ? implode( '>', $GLOBALS['wp_current_filter'] ) : 'n/a';
+
 		if ( ! isset( $this->textdomain_debug['at_shortcode_render'] ) ) {
-			$this->textdomain_debug['at_shortcode_render'] = array(
-				'pll_slug'    => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
-				'get_locale'  => get_locale(),
-				'title_value' => $options['title'],
-			);
+			$this->textdomain_debug['at_shortcode_render'] = array();
 		}
+		$this->textdomain_debug['at_shortcode_render'][] = array(
+			'pll_slug'     => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
+			'get_locale'   => get_locale(),
+			'title_value'  => $options['title'],
+			'current_hook' => $current_hook,
+			'trace'        => $trace,
+		);
 
 		$atts = shortcode_atts(
 			array(

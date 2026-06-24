@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,9 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.3.4 =
+* Expanded the temporary language diagnostic further: the shortcode render snapshot now records every call (not just the first) along with the active filter stack and a call-stack summary, to identify whether something else (an SEO plugin generating a meta description from the content, for instance) is triggering an extra, earlier render of the shortcode in the wrong language context.
 
 = 1.3.3 =
 * Fixed: clicking a TOC link while it was still in its normal (non-sticky) position could still land the heading half behind the TOC bar. Confirmed via direct testing that a sticky element renders with extra spacing before it has actually engaged position: sticky versus once it truly has — even with "stuck" and "collapsed" already forced. The jump now does an instant rough placement first (guaranteeing the TOC has genuinely engaged), then a small corrective smooth scroll using a fresh measurement, plus the stuck/collapse observer is suspended for the duration so it can't undo the forced state mid-scroll.
