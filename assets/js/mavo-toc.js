@@ -145,7 +145,6 @@
 		var titleBtn = toc.querySelector( '.mavo-toc__title' );
 
 		function observe() {
-			var gap = parseInt( getComputedStyle( toc ).getPropertyValue( '--mavo-toc-gap' ), 10 ) || 12;
 			var barOffset = parseInt( getComputedStyle( document.documentElement ).getPropertyValue( '--mavo-toc-bar-offset' ), 10 ) || 0;
 
 			if ( toc._mavoTocObserver ) {
@@ -166,7 +165,7 @@
 						}
 					} );
 				},
-				{ rootMargin: '-' + ( barOffset + gap ) + 'px 0px 0px 0px' }
+				{ rootMargin: '-' + barOffset + 'px 0px 0px 0px' }
 			);
 
 			toc._mavoTocObserver.observe( sentinel );
