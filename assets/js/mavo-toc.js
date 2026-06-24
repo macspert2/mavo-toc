@@ -128,6 +128,15 @@
 				}
 				e.preventDefault();
 
+				// Force the collapse now instead of trusting it to happen once
+				// "stuck" fires: a sticky TOC will be pinned at the destination
+				// either way, so its height has to already match what it'll
+				// actually look like there before tocOffset is measured below.
+				if ( sticky && collapsible && titleBtn && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
+					toc.classList.add( 'mavo-toc--collapsed' );
+					titleBtn.setAttribute( 'aria-expanded', 'false' );
+				}
+
 				var barOffset = measureBar( barSelector );
 				var tocOffset = 0;
 				if ( sticky ) {
@@ -179,7 +188,14 @@
 			toc._mavoTocObserver = new IntersectionObserver(
 				function ( entries ) {
 					entries.forEach( function ( entry ) {
-						var stuck = ! entry.isIntersecting;
+						// !isIntersecting alone is also true before the page has ever
+						// been scrolled anywhere near the TOC (the sentinel is simply
+						// far below the viewport, not yet stuck), which would mark it
+						// stuck from the moment the page loads. What actually means
+						// "stuck" is the sentinel having scrolled past the offset line.
+						var stuck = entry.rootBounds
+							? entry.boundingClientRect.top < entry.rootBounds.top
+							: ! entry.isIntersecting;
 						toc.classList.toggle( 'mavo-toc--stuck', stuck );
 
 						if ( collapsible ) {
@@ -198,11 +214,20 @@
 
 		if ( collapsible ) {
 			// Re-opening the title while stuck is a one-off peek, not a new
-			// preference: collapse it again as soon as scrolling resumes.
+			// preference: collapse it again once scrolling actually resumes.
+			// Toggling the collapsed class itself (the peek) shifts the layout of
+			// everything below it, which fires a "scroll" event with no real
+			// position change (observed in testing) — filtered out by requiring
+			// an actual scrollY change, or this would immediately undo the peek.
+			var lastScrollY = window.scrollY;
 			window.addEventListener(
 				'scroll',
 				function () {
-					if ( toc.classList.contains( 'mavo-toc--stuck' ) && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
+					var currentScrollY = window.scrollY;
+					var moved = Math.abs( currentScrollY - lastScrollY ) > 5;
+					lastScrollY = currentScrollY;
+
+					if ( moved && toc.classList.contains( 'mavo-toc--stuck' ) && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
 						toc.classList.add( 'mavo-toc--collapsed' );
 						if ( titleBtn ) {
 							titleBtn.setAttribute( 'aria-expanded', 'false' );

@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,12 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.3.1 =
+* Fixed: the title (and other translatable strings) could still show in English on a Polylang page, because pll_current_language() isn't reliable for the post being viewed until the main query has run, which is after the `init` hook used to load it. Translation loading now also re-runs on `wp`, once Polylang has actually resolved the page's language.
+* Fixed: clicking a TOC link could still land the heading behind the menu bar when the TOC started off expanded (not yet collapsed) — auto-collapsing only happened mid-scroll, after the landing position had already been calculated using its old, taller height. The TOC is now collapsed synchronously before that calculation, not left to happen on the way.
+* Fixed: a manual "peek" (re-opening the title while stuck) could re-collapse itself within ~100ms even without the user scrolling, because collapsing/expanding the TOC's own height was triggering a spurious `scroll` event with no real position change. Recollapse-on-scroll now requires an actual change in scroll position.
+* Fixed: the stuck/unstuck detection could incorrectly mark the TOC "stuck" from the moment the page loaded, before it was ever scrolled anywhere near it.
 
 = 1.3.0 =
 * Added French and German translations (bundled .mo files) for the title, button labels, and settings page.

@@ -15,17 +15,21 @@ class Mavo_TOC {
 		add_filter( 'the_content', array( $this, 'render' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_action( 'init', array( $this, 'maybe_purge_autoptimize' ) );
+		// `init` covers wp-admin (the settings page) and is a safe baseline, but
+		// pll_current_language() isn't reliable for *which post* is being viewed
+		// until the main query has resolved it, so this also re-runs on `wp`
+		// (after that), which is what actually decides the front-end title's
+		// language. The later call simply wins if it differs from the first.
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+		add_action( 'wp', array( $this, 'load_textdomain' ) );
 	}
 
 	/**
-	 * Polylang switches the current language (and therefore which translation
-	 * should be shown) per request, well before `init`. Its own slug
-	 * (pll_current_language(), e.g. "fr"/"en"/"de") is used directly when
-	 * available, since it's stable regardless of which exact WordPress locale
-	 * (fr_FR vs fr_CA, de_DE vs de_DE_formal...) each language is mapped to in
-	 * Polylang's settings. Falls back to the standard WordPress locale-based
-	 * loading for sites not running Polylang.
+	 * Uses Polylang's own slug (pll_current_language(), e.g. "fr"/"en"/"de")
+	 * directly when available, since it's stable regardless of which exact
+	 * WordPress locale (fr_FR vs fr_CA, de_DE vs de_DE_formal...) each language
+	 * is mapped to in Polylang's settings. Falls back to the standard WordPress
+	 * locale-based loading for sites not running Polylang.
 	 */
 	public function load_textdomain() {
 		if ( function_exists( 'pll_current_language' ) ) {
