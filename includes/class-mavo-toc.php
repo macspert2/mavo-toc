@@ -15,6 +15,30 @@ class Mavo_TOC {
 		add_filter( 'the_content', array( $this, 'render' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_action( 'init', array( $this, 'maybe_purge_autoptimize' ) );
+		add_action( 'init', array( $this, 'load_textdomain' ) );
+	}
+
+	/**
+	 * Polylang switches the current language (and therefore which translation
+	 * should be shown) per request, well before `init`. Its own slug
+	 * (pll_current_language(), e.g. "fr"/"en"/"de") is used directly when
+	 * available, since it's stable regardless of which exact WordPress locale
+	 * (fr_FR vs fr_CA, de_DE vs de_DE_formal...) each language is mapped to in
+	 * Polylang's settings. Falls back to the standard WordPress locale-based
+	 * loading for sites not running Polylang.
+	 */
+	public function load_textdomain() {
+		if ( function_exists( 'pll_current_language' ) ) {
+			$slug = pll_current_language( 'slug' );
+			if ( $slug ) {
+				$mofile = MAVO_TOC_PATH . 'languages/mavo-toc-' . $slug . '.mo';
+				if ( file_exists( $mofile ) && load_textdomain( 'mavo-toc', $mofile ) ) {
+					return;
+				}
+			}
+		}
+
+		load_plugin_textdomain( 'mavo-toc', false, dirname( plugin_basename( MAVO_TOC_FILE ) ) . '/languages' );
 	}
 
 	/**

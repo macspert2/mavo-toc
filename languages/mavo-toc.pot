@@ -1,0 +1,100 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Mavo TOC 1.2.2\n"
+"Report-Msgid-Bugs-To: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-06-24T00:00:00+00:00\n"
+"PO-Revision-Date: 2026-06-24T00:00:00+00:00\n"
+"X-Generator: manual\n"
+"X-Domain: mavo-toc\n"
+"Language: en\n"
+
+#: includes/class-mavo-toc.php
+msgid "Table of Contents"
+msgstr ""
+
+#: includes/class-mavo-toc.php
+msgid "Show subheadings"
+msgstr ""
+
+#: includes/class-mavo-toc.php
+msgid "Hide subheadings"
+msgstr ""
+
+#: includes/class-mavo-toc.php
+msgid "Show more"
+msgstr ""
+
+#: includes/class-mavo-toc.php
+msgid "Show less"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Mavo TOC"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Default title"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Minimum heading level"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Maximum heading level"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Collapsible"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Collapsed by default"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Sticky while scrolling"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Numbered list"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Smooth scroll to heading"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Limit before \"Show more\""
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Exclude class"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Sticky bar CSS selector"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "0 = no limit"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "CSS selector of the site's fixed/sticky menu bar. A sticky TOC will stick just below it instead of underneath it."
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Enabled"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Mavo TOC Settings"
+msgstr ""
+
+#: includes/class-mavo-toc-settings.php
+msgid "Default values used by the [mavo_toc] shortcode. Any of these can be overridden per shortcode, e.g."
+msgstr ""

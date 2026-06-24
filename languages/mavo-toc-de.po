@@ -1,0 +1,75 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Mavo TOC 1.2.2\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: mavo-toc\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Table of Contents"
+msgstr "Inhaltsverzeichnis"
+
+msgid "Show subheadings"
+msgstr "Unterüberschriften anzeigen"
+
+msgid "Hide subheadings"
+msgstr "Unterüberschriften ausblenden"
+
+msgid "Show more"
+msgstr "Mehr anzeigen"
+
+msgid "Show less"
+msgstr "Weniger anzeigen"
+
+msgid "Mavo TOC"
+msgstr "Mavo TOC"
+
+msgid "Default title"
+msgstr "Standardtitel"
+
+msgid "Minimum heading level"
+msgstr "Minimale Überschriftenebene"
+
+msgid "Maximum heading level"
+msgstr "Maximale Überschriftenebene"
+
+msgid "Collapsible"
+msgstr "Einklappbar"
+
+msgid "Collapsed by default"
+msgstr "Standardmäßig eingeklappt"
+
+msgid "Sticky while scrolling"
+msgstr "Fixiert beim Scrollen"
+
+msgid "Numbered list"
+msgstr "Nummerierte Liste"
+
+msgid "Smooth scroll to heading"
+msgstr "Sanftes Scrollen zur Überschrift"
+
+msgid "Limit before \"Show more\""
+msgstr "Grenze vor „Mehr anzeigen“"
+
+msgid "Exclude class"
+msgstr "Ausschlussklasse"
+
+msgid "Sticky bar CSS selector"
+msgstr "CSS-Selektor der fixierten Leiste"
+
+msgid "0 = no limit"
+msgstr "0 = keine Begrenzung"
+
+msgid "CSS selector of the site's fixed/sticky menu bar. A sticky TOC will stick just below it instead of underneath it."
+msgstr "CSS-Selektor der fixierten Menüleiste der Website. Ein fixiertes Inhaltsverzeichnis bleibt direkt darunter haften, statt darunter zu verschwinden."
+
+msgid "Enabled"
+msgstr "Aktiviert"
+
+msgid "Mavo TOC Settings"
+msgstr "Mavo TOC-Einstellungen"
+
+msgid "Default values used by the [mavo_toc] shortcode. Any of these can be overridden per shortcode, e.g."
+msgstr "Standardwerte, die vom Shortcode [mavo_toc] verwendet werden. Jeder davon kann pro Shortcode überschrieben werden, z. B.:"

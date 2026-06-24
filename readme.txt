@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.2.2
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,16 @@ bar (configured as a CSS selector under Settings > Mavo TOC, "Sticky bar CSS
 selector") instead of underneath it, and automatically collapses to its title
 only while stuck to the bar, reopening once scrolled back to its normal
 position in the post.
+
+== Languages ==
+
+All visible text (the default title, button labels, and the settings page)
+is translatable, and French and German translations are bundled. On a
+Polylang-powered site, the title and buttons automatically follow each page's
+Polylang language — no per-language settings needed. Translation source
+files live in `languages/` (`mavo-toc.pot` is the template; `mavo-toc-fr.po`
+and `mavo-toc-de.po` are the translations — edit these and recompile to
+`.mo` with `msgfmt` if you want to tweak the wording).
 
 == Shortcode ==
 
@@ -63,6 +73,10 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.3.0 =
+* Added French and German translations (bundled .mo files) for the title, button labels, and settings page.
+* On Polylang sites, the displayed language now automatically follows each page's Polylang language (using Polylang's own language slug, independent of whatever exact WordPress locale each language is mapped to) instead of always showing the same hardcoded text.
 
 = 1.2.2 =
 * Fixed: the menu bar's height was only ever measured when a *sticky* TOC was on the page, so the jump-offset silently did nothing on pages where the TOC wasn't sticky. It's now measured for every TOC, sticky or not, and re-measured directly at click time instead of relying on a cached value.
