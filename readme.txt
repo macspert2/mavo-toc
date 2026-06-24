@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.3.5
+Stable tag: 1.3.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,9 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.3.6 =
+* Found it: the diagnostic showed the loaded French translation object was still sitting in memory, correct, but WordPress's own `__()` was treating the domain as "unloaded" again by the time the shortcode rendered (something elsewhere in the request re-marks it after our own load completes, then it's fine again by the time the page footer runs). Rather than fight that, the title and button labels are now read from our own snapshot taken at the two points already confirmed correct, instead of calling `__()` again at render time — making our output immune to whatever's toggling that flag.
 
 = 1.3.5 =
 * Diagnostic now confirmed the title-language bug happens on the real `the_content` render (not a separate SEO/meta-description call), with the correct locale and Polylang slug active at that exact moment — yet the wrong string comes back. Added a direct inspection of the loaded translation object itself (entry count, whether it's actually unloaded, what it returns for the exact string) to find out why.

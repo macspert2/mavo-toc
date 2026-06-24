@@ -13,6 +13,18 @@ class Mavo_TOC {
 	/** @var array Temporary diagnostic for the Polylang title-language issue. */
 	private $textdomain_debug = array();
 
+	/**
+	 * @var array<string,string> Translated strings snapshotted at the two
+	 * points (init/wp) confirmed to have the right textdomain loaded.
+	 * Something elsewhere in the request marks the domain "unloaded" again by
+	 * the time the shortcode actually renders (confirmed via diagnostic), which
+	 * makes WordPress's own __() silently fall back to the English source
+	 * string even though the loaded translations are still sitting there,
+	 * correct, in $l10n. Reading from this snapshot instead of calling __()
+	 * again at render time sidesteps that entirely.
+	 */
+	private static $strings = array();
+
 	public function __construct() {
 		add_shortcode( 'mavo_toc', array( $this, 'shortcode' ) );
 		add_filter( 'the_content', array( $this, 'render' ), 100 );
@@ -80,10 +92,26 @@ class Mavo_TOC {
 			load_plugin_textdomain( 'mavo-toc', false, dirname( plugin_basename( MAVO_TOC_FILE ) ) . '/languages' );
 		}
 
+		self::$strings = array(
+			'Table of Contents' => __( 'Table of Contents', 'mavo-toc' ),
+			'Show subheadings'  => __( 'Show subheadings', 'mavo-toc' ),
+			'Hide subheadings'  => __( 'Hide subheadings', 'mavo-toc' ),
+			'Show more'         => __( 'Show more', 'mavo-toc' ),
+			'Show less'         => __( 'Show less', 'mavo-toc' ),
+		);
+
 		$debug['used_pll_path']      = $used_pll_path ? '1' : '0';
-		$debug['sample_translation'] = __( 'Table of Contents', 'mavo-toc' );
+		$debug['sample_translation'] = self::$strings['Table of Contents'];
 
 		$this->textdomain_debug[ current_filter() ] = $debug;
+	}
+
+	/**
+	 * Reads from the snapshot taken in load_textdomain() instead of calling
+	 * __() directly — see the property docblock for why.
+	 */
+	private static function t( $string ) {
+		return isset( self::$strings[ $string ] ) ? self::$strings[ $string ] : $string;
 	}
 
 	/**
@@ -108,7 +136,7 @@ class Mavo_TOC {
 	 */
 	public static function get_defaults() {
 		return array(
-			'title'               => __( 'Table of Contents', 'mavo-toc' ),
+			'title'               => self::t( 'Table of Contents' ),
 			'min_level'           => 2,
 			'max_level'           => 4,
 			'collapsible'         => true,
@@ -383,11 +411,11 @@ class Mavo_TOC {
 		$html .= $list;
 
 		if ( $max_depth > 0 ) {
-			$html .= '<button type="button" class="mavo-toc__btn mavo-toc__btn--levels" aria-expanded="false" data-label-expand="' . esc_attr__( 'Show subheadings', 'mavo-toc' ) . '" data-label-collapse="' . esc_attr__( 'Hide subheadings', 'mavo-toc' ) . '">' . esc_html__( 'Show subheadings', 'mavo-toc' ) . '</button>';
+			$html .= '<button type="button" class="mavo-toc__btn mavo-toc__btn--levels" aria-expanded="false" data-label-expand="' . esc_attr( self::t( 'Show subheadings' ) ) . '" data-label-collapse="' . esc_attr( self::t( 'Hide subheadings' ) ) . '">' . esc_html( self::t( 'Show subheadings' ) ) . '</button>';
 		}
 
 		if ( $atts['limit'] > 0 && $counter > $atts['limit'] ) {
-			$html .= '<button type="button" class="mavo-toc__btn mavo-toc__btn--more" data-label-more="' . esc_attr__( 'Show more', 'mavo-toc' ) . '" data-label-less="' . esc_attr__( 'Show less', 'mavo-toc' ) . '">' . esc_html__( 'Show more', 'mavo-toc' ) . '</button>';
+			$html .= '<button type="button" class="mavo-toc__btn mavo-toc__btn--more" data-label-more="' . esc_attr( self::t( 'Show more' ) ) . '" data-label-less="' . esc_attr( self::t( 'Show less' ) ) . '">' . esc_html( self::t( 'Show more' ) ) . '</button>';
 		}
 
 		$html .= '</div></nav>';
