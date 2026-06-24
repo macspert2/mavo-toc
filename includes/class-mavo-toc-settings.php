@@ -29,16 +29,17 @@ class Mavo_TOC_Settings {
 		add_settings_section( 'mavo_toc_main', '', '__return_false', self::PAGE_SLUG );
 
 		$fields = array(
-			'title'         => __( 'Default title', 'mavo-toc' ),
-			'min_level'     => __( 'Minimum heading level', 'mavo-toc' ),
-			'max_level'     => __( 'Maximum heading level', 'mavo-toc' ),
-			'collapsible'   => __( 'Collapsible', 'mavo-toc' ),
-			'collapsed'     => __( 'Collapsed by default', 'mavo-toc' ),
-			'sticky'        => __( 'Sticky while scrolling', 'mavo-toc' ),
-			'numbered'      => __( 'Numbered list', 'mavo-toc' ),
-			'smooth_scroll' => __( 'Smooth scroll to heading', 'mavo-toc' ),
-			'limit'         => __( 'Limit before "Show more"', 'mavo-toc' ),
-			'exclude_class' => __( 'Exclude class', 'mavo-toc' ),
+			'title'               => __( 'Default title', 'mavo-toc' ),
+			'min_level'           => __( 'Minimum heading level', 'mavo-toc' ),
+			'max_level'           => __( 'Maximum heading level', 'mavo-toc' ),
+			'collapsible'         => __( 'Collapsible', 'mavo-toc' ),
+			'collapsed'           => __( 'Collapsed by default', 'mavo-toc' ),
+			'sticky'              => __( 'Sticky while scrolling', 'mavo-toc' ),
+			'numbered'            => __( 'Numbered list', 'mavo-toc' ),
+			'smooth_scroll'       => __( 'Smooth scroll to heading', 'mavo-toc' ),
+			'limit'               => __( 'Limit before "Show more"', 'mavo-toc' ),
+			'exclude_class'       => __( 'Exclude class', 'mavo-toc' ),
+			'sticky_bar_selector' => __( 'Sticky bar CSS selector', 'mavo-toc' ),
 		);
 
 		foreach ( $fields as $key => $label ) {
@@ -61,16 +62,17 @@ class Mavo_TOC_Settings {
 		$max = isset( $input['max_level'] ) ? max( 1, min( 6, (int) $input['max_level'] ) ) : $defaults['max_level'];
 
 		return array(
-			'title'         => isset( $input['title'] ) ? sanitize_text_field( $input['title'] ) : $defaults['title'],
-			'min_level'     => $min,
-			'max_level'     => max( $min, $max ),
-			'collapsible'   => ! empty( $input['collapsible'] ),
-			'collapsed'     => ! empty( $input['collapsed'] ),
-			'sticky'        => ! empty( $input['sticky'] ),
-			'numbered'      => ! empty( $input['numbered'] ),
-			'smooth_scroll' => ! empty( $input['smooth_scroll'] ),
-			'limit'         => isset( $input['limit'] ) ? max( 0, (int) $input['limit'] ) : $defaults['limit'],
-			'exclude_class' => isset( $input['exclude_class'] ) ? sanitize_html_class( $input['exclude_class'] ) : $defaults['exclude_class'],
+			'title'               => isset( $input['title'] ) ? sanitize_text_field( $input['title'] ) : $defaults['title'],
+			'min_level'           => $min,
+			'max_level'           => max( $min, $max ),
+			'collapsible'         => ! empty( $input['collapsible'] ),
+			'collapsed'           => ! empty( $input['collapsed'] ),
+			'sticky'              => ! empty( $input['sticky'] ),
+			'numbered'            => ! empty( $input['numbered'] ),
+			'smooth_scroll'       => ! empty( $input['smooth_scroll'] ),
+			'limit'               => isset( $input['limit'] ) ? max( 0, (int) $input['limit'] ) : $defaults['limit'],
+			'exclude_class'       => isset( $input['exclude_class'] ) ? sanitize_html_class( $input['exclude_class'] ) : $defaults['exclude_class'],
+			'sticky_bar_selector' => isset( $input['sticky_bar_selector'] ) ? sanitize_text_field( $input['sticky_bar_selector'] ) : $defaults['sticky_bar_selector'],
 		);
 	}
 
@@ -102,6 +104,15 @@ class Mavo_TOC_Settings {
 			case 'title':
 			case 'exclude_class':
 				printf( '<input type="text" name="%s" value="%s" class="regular-text" />', esc_attr( $name ), esc_attr( $value ) );
+				break;
+
+			case 'sticky_bar_selector':
+				printf(
+					'<input type="text" name="%s" value="%s" class="regular-text" /> <p class="description">%s</p>',
+					esc_attr( $name ),
+					esc_attr( $value ),
+					esc_html__( 'CSS selector of the site\'s fixed/sticky menu bar. A sticky TOC will stick just below it instead of underneath it.', 'mavo-toc' )
+				);
 				break;
 
 			default:

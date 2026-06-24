@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,6 +19,17 @@ Anchor" field is respected if already set).
 
 Global defaults are configured under Settings > Mavo TOC, and every shortcode
 attribute below overrides the corresponding default for that one instance.
+
+When a heading range spans more than one level (e.g. H2-H4), the list starts
+collapsed to the shallowest level only; a "Show subheadings" control reveals
+one further level per click until everything is shown. This control only
+appears when there's actually a deeper level to reveal.
+
+When `sticky` is on, the box sticks just below the site's fixed/sticky menu
+bar (configured as a CSS selector under Settings > Mavo TOC, "Sticky bar CSS
+selector") instead of underneath it, and automatically collapses to its title
+only while stuck to the bar, reopening once scrolled back to its normal
+position in the post.
 
 == Shortcode ==
 
@@ -52,6 +63,12 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.1.0 =
+* Styling adapted to match the Maman Voyage theme (colors, font, shadow via CSS custom properties).
+* Sticky mode now sticks below the site's fixed menu bar instead of behind it, with a configurable selector and a height measured at runtime.
+* Multi-level lists now start collapsed to the shallowest level, with a "Show subheadings" control to reveal deeper levels one at a time.
+* Sticky + collapsible TOCs now auto-collapse to their title once stuck against the menu bar, and reopen once unstuck.
 
 = 1.0.0 =
 * Initial release.

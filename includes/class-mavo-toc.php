@@ -19,16 +19,17 @@ class Mavo_TOC {
 	 */
 	public static function get_defaults() {
 		return array(
-			'title'         => __( 'Table of Contents', 'mavo-toc' ),
-			'min_level'     => 2,
-			'max_level'     => 4,
-			'collapsible'   => true,
-			'collapsed'     => false,
-			'sticky'        => false,
-			'numbered'      => false,
-			'smooth_scroll' => true,
-			'limit'         => 0,
-			'exclude_class' => 'mavo-toc-skip',
+			'title'               => __( 'Table of Contents', 'mavo-toc' ),
+			'min_level'           => 2,
+			'max_level'           => 4,
+			'collapsible'         => true,
+			'collapsed'           => false,
+			'sticky'              => false,
+			'numbered'            => false,
+			'smooth_scroll'       => true,
+			'limit'               => 0,
+			'exclude_class'       => 'mavo-toc-skip',
+			'sticky_bar_selector' => '.mavo-sticky',
 		);
 	}
 
@@ -193,9 +194,10 @@ class Mavo_TOC {
 		$index = 0;
 		$tree  = $this->build_branch( $items, $index, 0 );
 
-		$tag     = $atts['numbered'] ? 'ol' : 'ul';
-		$counter = 0;
-		$list    = $this->render_branch( $tree, $tag, (int) $atts['limit'], $counter );
+		$tag       = $atts['numbered'] ? 'ol' : 'ul';
+		$counter   = 0;
+		$max_depth = 0;
+		$list      = $this->render_branch( $tree, $tag, (int) $atts['limit'], $counter, 0, $max_depth );
 
 		$classes = array( 'mavo-toc' );
 		if ( $atts['sticky'] ) {
@@ -211,9 +213,15 @@ class Mavo_TOC {
 			$classes[] = sanitize_html_class( $atts['class'] );
 		}
 
-		$smooth_attr = $atts['smooth_scroll'] ? ' data-smooth-scroll="1"' : '';
+		$extra_attrs = $atts['smooth_scroll'] ? ' data-smooth-scroll="1"' : '';
+		if ( $atts['sticky'] ) {
+			$sticky_bar_selector = self::get_options()['sticky_bar_selector'];
+			if ( $sticky_bar_selector ) {
+				$extra_attrs .= ' data-sticky-bar="' . esc_attr( $sticky_bar_selector ) . '"';
+			}
+		}
 
-		$html = '<nav class="' . esc_attr( implode( ' ', $classes ) ) . '"' . $smooth_attr . '>';
+		$html = '<nav class="' . esc_attr( implode( ' ', $classes ) ) . '"' . $extra_attrs . '>';
 
 		if ( ! empty( $atts['title'] ) ) {
 			if ( $atts['collapsible'] ) {
@@ -226,8 +234,12 @@ class Mavo_TOC {
 		$html .= '<div class="mavo-toc__body">';
 		$html .= $list;
 
+		if ( $max_depth > 0 ) {
+			$html .= '<button type="button" class="mavo-toc__btn mavo-toc__btn--levels" aria-expanded="false" data-label-expand="' . esc_attr__( 'Show subheadings', 'mavo-toc' ) . '" data-label-collapse="' . esc_attr__( 'Hide subheadings', 'mavo-toc' ) . '">' . esc_html__( 'Show subheadings', 'mavo-toc' ) . '</button>';
+		}
+
 		if ( $atts['limit'] > 0 && $counter > $atts['limit'] ) {
-			$html .= '<button type="button" class="mavo-toc__toggle" data-label-more="' . esc_attr__( 'Show more', 'mavo-toc' ) . '" data-label-less="' . esc_attr__( 'Show less', 'mavo-toc' ) . '">' . esc_html__( 'Show more', 'mavo-toc' ) . '</button>';
+			$html .= '<button type="button" class="mavo-toc__btn mavo-toc__btn--more" data-label-more="' . esc_attr__( 'Show more', 'mavo-toc' ) . '" data-label-less="' . esc_attr__( 'Show less', 'mavo-toc' ) . '">' . esc_html__( 'Show more', 'mavo-toc' ) . '</button>';
 		}
 
 		$html .= '</div></nav>';
@@ -259,19 +271,32 @@ class Mavo_TOC {
 		return $branch;
 	}
 
-	private function render_branch( array $branch, $tag, $limit, &$counter ) {
+	/**
+	 * $depth is the nesting depth relative to the shallowest headings shown (0 for
+	 * the top-level list), not the literal h1-h6 number, so progressive reveal
+	 * works the same way regardless of which heading levels are actually in range.
+	 * Every list rendered at depth > 0 is tagged with that depth so the front-end
+	 * script can reveal one more level at a time; $max_depth records how deep the
+	 * tree actually goes so build_html() knows whether to render the control at all.
+	 */
+	private function render_branch( array $branch, $tag, $limit, &$counter, $depth, &$max_depth ) {
 		if ( empty( $branch ) ) {
 			return '';
 		}
 
-		$html = "<{$tag} class=\"mavo-toc__list\">";
+		$depth_attr = $depth > 0 ? ' data-depth="' . (int) $depth . '"' : '';
+		if ( $depth > $max_depth ) {
+			$max_depth = $depth;
+		}
+
+		$html = "<{$tag} class=\"mavo-toc__list\"{$depth_attr}>";
 
 		foreach ( $branch as $node ) {
 			++$counter;
 			$hidden = ( $limit > 0 && $counter > $limit ) ? ' mavo-toc__item--hidden' : '';
 			$html  .= '<li class="mavo-toc__item' . $hidden . '">';
 			$html  .= '<a href="#' . esc_attr( $node['heading']['id'] ) . '">' . esc_html( $node['heading']['text'] ) . '</a>';
-			$html  .= $this->render_branch( $node['children'], $tag, $limit, $counter );
+			$html  .= $this->render_branch( $node['children'], $tag, $limit, $counter, $depth + 1, $max_depth );
 			$html  .= '</li>';
 		}
 

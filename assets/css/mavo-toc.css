@@ -1,18 +1,29 @@
 .mavo-toc {
-	border: 1px solid #ddd;
-	border-radius: 4px;
+	--mavo-toc-gap: 12px;
+	font-family: var(--mavo-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif);
+	background: var(--mavo-bg, #fff);
+	border: 1px solid var(--mavo-header-bg, #b6c6d4);
+	border-radius: 6px;
 	padding: 1em 1.25em;
 	margin: 1.5em 0;
-	background: #fafafa;
+	transition: box-shadow .2s ease;
 }
 
 .mavo-toc--sticky {
 	position: sticky;
-	top: 20px;
+	top: calc(var(--mavo-toc-bar-offset, 0px) + var(--mavo-toc-gap));
+	z-index: 999;
+	max-height: calc(100vh - var(--mavo-toc-bar-offset, 0px) - 2 * var(--mavo-toc-gap));
+	overflow-y: auto;
+}
+
+.mavo-toc--sticky.mavo-toc--stuck {
+	box-shadow: var(--mavo-shadow, 0 1px 15px rgba(0, 0, 0, .05));
 }
 
 .mavo-toc__title {
 	margin: 0 0 0.5em;
+	color: var(--mavo-blue, #4e74a5);
 	font-weight: 600;
 	font-size: 1.1em;
 }
@@ -27,6 +38,7 @@
 	padding: 0 0 0.5em;
 	cursor: pointer;
 	text-align: left;
+	font-family: inherit;
 }
 
 .mavo-toc--collapsible .mavo-toc__title::after {
@@ -36,6 +48,11 @@
 
 .mavo-toc--collapsed .mavo-toc__title::after {
 	content: "+";
+}
+
+.mavo-toc--collapsed .mavo-toc__title {
+	margin-bottom: 0;
+	padding-bottom: 0;
 }
 
 .mavo-toc--collapsed .mavo-toc__body {
@@ -71,18 +88,32 @@
 	display: list-item;
 }
 
-.mavo-toc__toggle {
+.mavo-toc__list a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.mavo-toc__list a:hover,
+.mavo-toc__list a:focus {
+	color: var(--mavo-brown, #886353);
+	text-decoration: underline;
+}
+
+.mavo-toc__btn {
 	display: inline-block;
 	margin-top: 0.75em;
+	margin-right: 1em;
 	background: none;
 	border: none;
-	color: #0073aa;
+	color: var(--mavo-blue, #4e74a5);
 	cursor: pointer;
 	padding: 0;
+	font-family: inherit;
 	font-size: 0.95em;
 	text-decoration: underline;
 }
 
-.mavo-toc__toggle:hover {
-	color: #00a0d2;
+.mavo-toc__btn:hover,
+.mavo-toc__btn:focus {
+	color: var(--mavo-brown, #886353);
 }
