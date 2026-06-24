@@ -184,18 +184,25 @@ class Mavo_TOC {
 
 		$options = self::get_options();
 
+		global $l10n, $l10n_unloaded;
 		$trace        = wp_debug_backtrace_summary( null, 0, false );
 		$current_hook = is_array( $GLOBALS['wp_current_filter'] ?? null ) ? implode( '>', $GLOBALS['wp_current_filter'] ) : 'n/a';
+		$mo           = isset( $l10n['mavo-toc'] ) ? $l10n['mavo-toc'] : null;
 
 		if ( ! isset( $this->textdomain_debug['at_shortcode_render'] ) ) {
 			$this->textdomain_debug['at_shortcode_render'] = array();
 		}
 		$this->textdomain_debug['at_shortcode_render'][] = array(
-			'pll_slug'     => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
-			'get_locale'   => get_locale(),
-			'title_value'  => $options['title'],
-			'current_hook' => $current_hook,
-			'trace'        => $trace,
+			'pll_slug'        => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
+			'get_locale'      => get_locale(),
+			'title_value'     => $options['title'],
+			'current_hook'    => $current_hook,
+			'l10n_set'        => null !== $mo ? '1' : '0',
+			'l10n_unloaded'   => ! empty( $l10n_unloaded['mavo-toc'] ) ? '1' : '0',
+			'mo_class'        => null !== $mo ? get_class( $mo ) : 'n/a',
+			'mo_has_entry'    => ( null !== $mo && method_exists( $mo, 'translate' ) ) ? ( $mo->translate( 'Table of Contents' ) === 'Table of Contents' ? 'no-match-falls-back' : 'matched:' . $mo->translate( 'Table of Contents' ) ) : 'n/a',
+			'mo_entry_count'  => ( null !== $mo && isset( $mo->entries ) && is_array( $mo->entries ) ) ? count( $mo->entries ) : 'n/a',
+			'trace'           => $trace,
 		);
 
 		$atts = shortcode_atts(

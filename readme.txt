@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.3.4
+Stable tag: 1.3.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,9 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.3.5 =
+* Diagnostic now confirmed the title-language bug happens on the real `the_content` render (not a separate SEO/meta-description call), with the correct locale and Polylang slug active at that exact moment — yet the wrong string comes back. Added a direct inspection of the loaded translation object itself (entry count, whether it's actually unloaded, what it returns for the exact string) to find out why.
 
 = 1.3.4 =
 * Expanded the temporary language diagnostic further: the shortcode render snapshot now records every call (not just the first) along with the active filter stack and a call-stack summary, to identify whether something else (an SEO plugin generating a meta description from the content, for instance) is triggering an extra, earlier render of the shortcode in the wrong language context.
