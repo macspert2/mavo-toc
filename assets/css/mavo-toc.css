@@ -1,0 +1,88 @@
+.mavo-toc {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 1em 1.25em;
+	margin: 1.5em 0;
+	background: #fafafa;
+}
+
+.mavo-toc--sticky {
+	position: sticky;
+	top: 20px;
+}
+
+.mavo-toc__title {
+	margin: 0 0 0.5em;
+	font-weight: 600;
+	font-size: 1.1em;
+}
+
+.mavo-toc--collapsible .mavo-toc__title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	background: none;
+	border: none;
+	padding: 0 0 0.5em;
+	cursor: pointer;
+	text-align: left;
+}
+
+.mavo-toc--collapsible .mavo-toc__title::after {
+	content: "\2212";
+	margin-left: 0.5em;
+}
+
+.mavo-toc--collapsed .mavo-toc__title::after {
+	content: "+";
+}
+
+.mavo-toc--collapsed .mavo-toc__body {
+	display: none;
+}
+
+.mavo-toc__list,
+.mavo-toc__list ul,
+.mavo-toc__list ol {
+	margin: 0;
+	padding-left: 1.25em;
+}
+
+.mavo-toc__list {
+	padding-left: 0;
+	list-style: none;
+}
+
+.mavo-toc__list .mavo-toc__list {
+	list-style: disc;
+	margin-top: 0.25em;
+}
+
+.mavo-toc__item {
+	margin: 0.25em 0;
+}
+
+.mavo-toc__item--hidden {
+	display: none;
+}
+
+.mavo-toc--expanded .mavo-toc__item--hidden {
+	display: list-item;
+}
+
+.mavo-toc__toggle {
+	display: inline-block;
+	margin-top: 0.75em;
+	background: none;
+	border: none;
+	color: #0073aa;
+	cursor: pointer;
+	padding: 0;
+	font-size: 0.95em;
+	text-decoration: underline;
+}
+
+.mavo-toc__toggle:hover {
+	color: #00a0d2;
+}
