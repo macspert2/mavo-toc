@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,10 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.2.0 =
+* CSS/JS are now versioned by their own file modification time instead of a hand-bumped constant, so the enqueued URL always changes when either file is edited.
+* If the Autoptimize plugin is active, its full CSS/JS cache is purged automatically the moment mavo-toc.css or mavo-toc.js actually changes on disk (checked once per request, only acts on an actual change).
 
 = 1.1.0 =
 * Styling adapted to match the Maman Voyage theme (colors, font, shadow via CSS custom properties).

@@ -8,10 +8,13 @@ class Mavo_TOC {
 
 	const OPTION_KEY = 'mavo_toc_options';
 
+	const ASSETS_FINGERPRINT_OPTION = 'mavo_toc_assets_fingerprint';
+
 	public function __construct() {
 		add_shortcode( 'mavo_toc', array( $this, 'shortcode' ) );
 		add_filter( 'the_content', array( $this, 'render' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
+		add_action( 'init', array( $this, 'maybe_purge_autoptimize' ) );
 	}
 
 	/**
@@ -42,8 +45,44 @@ class Mavo_TOC {
 	}
 
 	public function register_assets() {
-		wp_register_style( 'mavo-toc', MAVO_TOC_URL . 'assets/css/mavo-toc.css', array(), MAVO_TOC_VERSION );
-		wp_register_script( 'mavo-toc', MAVO_TOC_URL . 'assets/js/mavo-toc.js', array(), MAVO_TOC_VERSION, true );
+		wp_register_style( 'mavo-toc', MAVO_TOC_URL . 'assets/css/mavo-toc.css', array(), self::asset_version( 'assets/css/mavo-toc.css' ) );
+		wp_register_script( 'mavo-toc', MAVO_TOC_URL . 'assets/js/mavo-toc.js', array(), self::asset_version( 'assets/js/mavo-toc.js' ), true );
+	}
+
+	/**
+	 * Versions an asset by its own filemtime instead of the plugin version, so the
+	 * enqueued URL (and therefore Autoptimize's aggregation key for it) changes
+	 * automatically whenever the file is edited, without anyone having to
+	 * remember to bump a version constant by hand.
+	 */
+	private static function asset_version( $relative_path ) {
+		$file = MAVO_TOC_PATH . $relative_path;
+		return file_exists( $file ) ? (string) filemtime( $file ) : MAVO_TOC_VERSION;
+	}
+
+	/**
+	 * Autoptimize aggregates and caches CSS/JS site-wide independently of our own
+	 * asset URLs, so an edited mavo-toc.css/.js can still serve a stale aggregate
+	 * even though register_assets() is already pointing at a fresh URL. This runs
+	 * a cheap filemtime check on every request and purges Autoptimize's cache the
+	 * moment either file actually changes on disk, so cache-busting is automatic
+	 * rather than relying on remembering a manual "clear cache" step after every
+	 * deploy.
+	 */
+	public function maybe_purge_autoptimize() {
+		$fingerprint = self::asset_version( 'assets/css/mavo-toc.css' ) . '-' . self::asset_version( 'assets/js/mavo-toc.js' );
+		$stored      = get_option( self::ASSETS_FINGERPRINT_OPTION );
+
+		if ( $stored === $fingerprint ) {
+			return;
+		}
+
+		update_option( self::ASSETS_FINGERPRINT_OPTION, $fingerprint );
+
+		// false only on the very first run (option never set yet): nothing to purge.
+		if ( false !== $stored && class_exists( 'autoptimizeCache' ) && method_exists( 'autoptimizeCache', 'clearall' ) ) {
+			autoptimizeCache::clearall();
+		}
 	}
 
 	/**
