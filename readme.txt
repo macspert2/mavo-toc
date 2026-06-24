@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,11 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.2.1 =
+* Stuck/collapsed sticky bar loses its top/bottom padding (left/right kept) for a slimmer look.
+* Title and toggle buttons keep their own hover color instead of inheriting the theme's generic button hover skin, which could make the label unreadable.
+* Clicking a TOC link now lands the heading below the menu bar and the sticky TOC bar instead of behind them.
 
 = 1.2.0 =
 * CSS/JS are now versioned by their own file modification time instead of a hand-bumped constant, so the enqueued URL always changes when either file is edited.

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Mavo TOC
  * Description: Adds a [mavo_toc] shortcode that builds a customizable table of contents from the headings in a post.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * License: GPLv2 or later
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'MAVO_TOC_VERSION', '1.2.0' );
+define( 'MAVO_TOC_VERSION', '1.2.1' );
 define( 'MAVO_TOC_FILE', __FILE__ );
 define( 'MAVO_TOC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'MAVO_TOC_URL', plugin_dir_url( __FILE__ ) );

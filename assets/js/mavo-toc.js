@@ -103,10 +103,20 @@
 		} );
 	}
 
+	/**
+	 * A plain scrollIntoView({block:'start'}) lines the heading up with the very
+	 * top of the viewport, which is exactly where the fixed menu bar (and, once
+	 * scrolled that far, our own stuck TOC bar) sits — hiding the heading behind
+	 * both. The landing point is pulled down by their combined height instead.
+	 */
 	function initSmoothScroll( toc ) {
 		if ( toc.getAttribute( 'data-smooth-scroll' ) !== '1' ) {
 			return;
 		}
+
+		var sticky = toc.classList.contains( 'mavo-toc--sticky' );
+		var collapsible = toc.classList.contains( 'mavo-toc--collapsible' );
+		var titleBtn = toc.querySelector( '.mavo-toc__title' );
 
 		toc.querySelectorAll( 'a[href^="#"]' ).forEach( function ( link ) {
 			link.addEventListener( 'click', function ( e ) {
@@ -115,7 +125,20 @@
 					return;
 				}
 				e.preventDefault();
-				target.scrollIntoView( { behavior: 'smooth', block: 'start' } );
+
+				var barOffset = parseInt( getComputedStyle( document.documentElement ).getPropertyValue( '--mavo-toc-bar-offset' ), 10 ) || 0;
+				var tocOffset = 0;
+				if ( sticky ) {
+					// Once stuck, a collapsible TOC shrinks to just its title bar, so
+					// that's the height that will actually obstruct the heading.
+					tocOffset = ( collapsible && titleBtn ? titleBtn : toc ).getBoundingClientRect().height;
+				}
+
+				var targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+				var scrollTo = Math.max( 0, targetTop - barOffset - tocOffset - 12 );
+
+				window.scrollTo( { top: scrollTo, behavior: 'smooth' } );
+
 				if ( history.pushState ) {
 					history.pushState( null, '', link.getAttribute( 'href' ) );
 				}

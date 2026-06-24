@@ -14,6 +14,8 @@
 	z-index: 999;
 	max-height: calc(100vh - var(--mavo-toc-bar-offset, 0px));
 	overflow-y: auto;
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 .mavo-toc--sticky.mavo-toc--stuck {
@@ -34,15 +36,27 @@
 
 .mavo-toc--sticky.mavo-toc--stuck.mavo-toc--collapsed .mavo-toc__title {
 	margin: 0;
-	padding: 8px 20px;
+	padding: 0 20px;
 	font-size: 0.95em;
 }
 
 .mavo-toc__title {
 	margin: 0 0 0.5em;
+	background: none;
 	color: var(--mavo-blue, #4e74a5);
 	font-weight: 600;
 	font-size: 1.1em;
+}
+
+/* The title and toggle buttons are real <button> elements, so without this the
+   theme's generic button hover/focus skin (background + text color) can win
+   and make the label unreadable against its own background. */
+.mavo-toc__title:hover,
+.mavo-toc__title:focus,
+.mavo-toc__btn:hover,
+.mavo-toc__btn:focus {
+	background: none !important;
+	color: var(--mavo-brown, #886353) !important;
 }
 
 .mavo-toc--collapsible .mavo-toc__title {
@@ -128,9 +142,4 @@
 	font-family: inherit;
 	font-size: 0.95em;
 	text-decoration: underline;
-}
-
-.mavo-toc__btn:hover,
-.mavo-toc__btn:focus {
-	color: var(--mavo-brown, #886353);
 }
