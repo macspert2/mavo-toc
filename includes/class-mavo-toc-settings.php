@@ -102,6 +102,20 @@ class Mavo_TOC_Settings {
 				break;
 
 			case 'title':
+				// Shows only the actually saved override, never the resolved
+				// default — pre-filling with a resolved value would silently
+				// freeze whatever language was active in wp-admin right now as
+				// a permanent override the next time the form is saved.
+				$saved = get_option( Mavo_TOC::OPTION_KEY, array() );
+				printf(
+					'<input type="text" name="%s" value="%s" placeholder="%s" class="regular-text" /> <p class="description">%s</p>',
+					esc_attr( $name ),
+					esc_attr( is_array( $saved ) && isset( $saved['title'] ) ? $saved['title'] : '' ),
+					esc_attr( Mavo_TOC::get_defaults()['title'] ),
+					esc_html__( 'Leave empty to use the default title, shown in whichever language Polylang is currently serving. Only set this if you want the same fixed text on every language.', 'mavo-toc' )
+				);
+				break;
+
 			case 'exclude_class':
 				printf( '<input type="text" name="%s" value="%s" class="regular-text" />', esc_attr( $name ), esc_attr( $value ) );
 				break;

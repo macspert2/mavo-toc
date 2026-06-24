@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.3.6
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,12 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.4.0 =
+* Found the actual cause of the title-language issue, and it had nothing to do with text domains: the Settings page's "Default title" field was pre-filled with the *resolved* default, which is shown in wp-admin's own locale (not a front-end visitor's Polylang language). Saving the settings form for any reason — even just to change an unrelated option — silently froze that resolved text into the database as a permanent override, applied to every visitor regardless of language from then on.
+  - The settings field no longer pre-fills with a resolved value; it now shows only what was actually saved as a deliberate override, with the live default shown as a placeholder hint instead.
+  - A saved title of "" is now treated as "no override" and re-resolves to the current default (translated per page) rather than being a frozen value — if your title is currently stuck in one language, open Settings > Mavo TOC, clear the "Default title" field, and save once to fix it.
+* Removed the temporary diagnostic added while tracking this down.
 
 = 1.3.6 =
 * Found it: the diagnostic showed the loaded French translation object was still sitting in memory, correct, but WordPress's own `__()` was treating the domain as "unloaded" again by the time the shortcode rendered (something elsewhere in the request re-marks it after our own load completes, then it's fine again by the time the page footer runs). Rather than fight that, the title and button labels are now read from our own snapshot taken at the two points already confirmed correct, instead of calling `__()` again at render time — making our output immune to whatever's toggling that flag.

@@ -10,18 +10,13 @@ class Mavo_TOC {
 
 	const ASSETS_FINGERPRINT_OPTION = 'mavo_toc_assets_fingerprint';
 
-	/** @var array Temporary diagnostic for the Polylang title-language issue. */
-	private $textdomain_debug = array();
-
 	/**
-	 * @var array<string,string> Translated strings snapshotted at the two
-	 * points (init/wp) confirmed to have the right textdomain loaded.
-	 * Something elsewhere in the request marks the domain "unloaded" again by
-	 * the time the shortcode actually renders (confirmed via diagnostic), which
-	 * makes WordPress's own __() silently fall back to the English source
-	 * string even though the loaded translations are still sitting there,
-	 * correct, in $l10n. Reading from this snapshot instead of calling __()
-	 * again at render time sidesteps that entirely.
+	 * @var array<string,string> Translated strings, refreshed in
+	 * load_textdomain(). get_defaults() reads from this rather than calling
+	 * __() directly, since something elsewhere in the request was found to
+	 * mark the domain "unloaded" again between our own load and the point the
+	 * shortcode renders — which makes __() silently fall back to the English
+	 * source string even though the loaded translations are still correct.
 	 */
 	private static $strings = array();
 
@@ -37,7 +32,6 @@ class Mavo_TOC {
 		// language. The later call simply wins if it differs from the first.
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'wp', array( $this, 'load_textdomain' ) );
-		add_action( 'wp_footer', array( $this, 'print_textdomain_debug' ), 9999 );
 	}
 
 	/**
@@ -48,47 +42,24 @@ class Mavo_TOC {
 	 * locale-based loading for sites not running Polylang.
 	 */
 	public function load_textdomain() {
-		global $l10n;
-
-		$debug = array(
-			'hook'                  => current_filter(),
-			'pll_active'            => function_exists( 'pll_current_language' ) ? '1' : '0',
-			'pll_slug'              => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
-			'get_locale'            => get_locale(),
-			'already_loaded_before' => isset( $l10n['mavo-toc'] ) ? '1' : '0',
-			'mofile_exists'         => '0',
-			'load_textdomain_ok'    => '0',
-			'sample_translation'    => '',
-		);
-
 		// Defensive: load_textdomain() *merges* with anything already loaded for
 		// this domain, and existing entries win over the newly loaded ones for
 		// matching strings — so if anything loaded this domain earlier in the
-		// request (e.g. WP's just-in-time loader, triggered by an early __()
-		// call, using whatever locale was active before Polylang switched it),
-		// our correct load could be silently overridden. Unloading first
-		// guarantees a clean slate.
+		// request, our correct load could be silently overridden. Unloading
+		// first guarantees a clean slate.
 		unload_textdomain( 'mavo-toc' );
 
-		$used_pll_path = false;
+		$loaded = false;
 
 		if ( function_exists( 'pll_current_language' ) ) {
 			$slug = pll_current_language( 'slug' );
 			if ( $slug ) {
-				$mofile                  = MAVO_TOC_PATH . 'languages/mavo-toc-' . $slug . '.mo';
-				$debug['mofile_path']    = $mofile;
-				$debug['mofile_exists']  = file_exists( $mofile ) ? '1' : '0';
-				if ( file_exists( $mofile ) ) {
-					$loaded                       = load_textdomain( 'mavo-toc', $mofile );
-					$debug['load_textdomain_ok']  = $loaded ? '1' : '0';
-					if ( $loaded ) {
-						$used_pll_path = true;
-					}
-				}
+				$mofile = MAVO_TOC_PATH . 'languages/mavo-toc-' . $slug . '.mo';
+				$loaded = file_exists( $mofile ) && load_textdomain( 'mavo-toc', $mofile );
 			}
 		}
 
-		if ( ! $used_pll_path ) {
+		if ( ! $loaded ) {
 			load_plugin_textdomain( 'mavo-toc', false, dirname( plugin_basename( MAVO_TOC_FILE ) ) . '/languages' );
 		}
 
@@ -99,11 +70,6 @@ class Mavo_TOC {
 			'Show more'         => __( 'Show more', 'mavo-toc' ),
 			'Show less'         => __( 'Show less', 'mavo-toc' ),
 		);
-
-		$debug['used_pll_path']      = $used_pll_path ? '1' : '0';
-		$debug['sample_translation'] = self::$strings['Table of Contents'];
-
-		$this->textdomain_debug[ current_filter() ] = $debug;
 	}
 
 	/**
@@ -112,23 +78,6 @@ class Mavo_TOC {
 	 */
 	private static function t( $string ) {
 		return isset( self::$strings[ $string ] ) ? self::$strings[ $string ] : $string;
-	}
-
-	/**
-	 * Temporary diagnostic for the Polylang title-language issue — safe to
-	 * remove once resolved. Prints nothing visible; only an HTML comment.
-	 */
-	public function print_textdomain_debug() {
-		$this->textdomain_debug['at_footer'] = array(
-			'pll_slug'           => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
-			'get_locale'         => get_locale(),
-			'sample_translation' => __( 'Table of Contents', 'mavo-toc' ),
-		);
-
-		if ( empty( $this->textdomain_debug ) ) {
-			return;
-		}
-		echo "\n<!-- mavo-toc-lang-debug " . esc_html( wp_json_encode( $this->textdomain_debug ) ) . " -->\n";
 	}
 
 	/**
@@ -154,8 +103,20 @@ class Mavo_TOC {
 	 * Saved settings merged on top of the hardcoded defaults.
 	 */
 	public static function get_options() {
-		$saved = get_option( self::OPTION_KEY, array() );
-		return wp_parse_args( is_array( $saved ) ? $saved : array(), self::get_defaults() );
+		$saved   = get_option( self::OPTION_KEY, array() );
+		$options = wp_parse_args( is_array( $saved ) ? $saved : array(), self::get_defaults() );
+
+		// An explicitly empty saved title means "no custom override", not "hide
+		// the title" (a per-shortcode title="" is what does that) — re-resolve
+		// it fresh so it still follows the current page's language, instead of
+		// permanently freezing whatever language happened to be active the one
+		// time the settings page was last saved (wp-admin's own locale, not
+		// necessarily a front-end visitor's).
+		if ( '' === $options['title'] ) {
+			$options['title'] = self::get_defaults()['title'];
+		}
+
+		return $options;
 	}
 
 	public function register_assets() {
@@ -211,27 +172,6 @@ class Mavo_TOC {
 		}
 
 		$options = self::get_options();
-
-		global $l10n, $l10n_unloaded;
-		$trace        = wp_debug_backtrace_summary( null, 0, false );
-		$current_hook = is_array( $GLOBALS['wp_current_filter'] ?? null ) ? implode( '>', $GLOBALS['wp_current_filter'] ) : 'n/a';
-		$mo           = isset( $l10n['mavo-toc'] ) ? $l10n['mavo-toc'] : null;
-
-		if ( ! isset( $this->textdomain_debug['at_shortcode_render'] ) ) {
-			$this->textdomain_debug['at_shortcode_render'] = array();
-		}
-		$this->textdomain_debug['at_shortcode_render'][] = array(
-			'pll_slug'        => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
-			'get_locale'      => get_locale(),
-			'title_value'     => $options['title'],
-			'current_hook'    => $current_hook,
-			'l10n_set'        => null !== $mo ? '1' : '0',
-			'l10n_unloaded'   => ! empty( $l10n_unloaded['mavo-toc'] ) ? '1' : '0',
-			'mo_class'        => null !== $mo ? get_class( $mo ) : 'n/a',
-			'mo_has_entry'    => ( null !== $mo && method_exists( $mo, 'translate' ) ) ? ( $mo->translate( 'Table of Contents' ) === 'Table of Contents' ? 'no-match-falls-back' : 'matched:' . $mo->translate( 'Table of Contents' ) ) : 'n/a',
-			'mo_entry_count'  => ( null !== $mo && isset( $mo->entries ) && is_array( $mo->entries ) ) ? count( $mo->entries ) : 'n/a',
-			'trace'           => $trace,
-		);
 
 		$atts = shortcode_atts(
 			array(
