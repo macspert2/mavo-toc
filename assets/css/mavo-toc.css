@@ -1,8 +1,8 @@
 .mavo-toc {
 	font-family: var(--mavo-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif);
 	background: var(--mavo-bg, #fff);
-	border: 1px solid var(--mavo-header-bg, #b6c6d4);
 	border-radius: 6px;
+	box-shadow: 0 1px 6px rgba(0, 0, 0, .08);
 	padding: 1em 1.25em;
 	margin: 1.5em 0;
 	transition: box-shadow .2s ease, padding .2s ease;
@@ -14,12 +14,14 @@
 	z-index: 999;
 	max-height: calc(100vh - var(--mavo-toc-bar-offset, 0px));
 	overflow-y: auto;
-	padding-top: 0;
-	padding-bottom: 0;
 }
 
+/* Only once actually pinned against the menu bar does it need to slim down;
+   while sticky but still in its normal flow position it keeps full padding. */
 .mavo-toc--sticky.mavo-toc--stuck {
 	box-shadow: 0 1px 15px rgba(0, 0, 0, .05);
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 /* Once it's pinned under the menu bar and auto-collapsed to its title, it
@@ -29,7 +31,6 @@
 	max-width: 100vw;
 	margin-left: calc(50% - 50vw);
 	margin-right: calc(50% - 50vw);
-	border: none;
 	border-radius: 0;
 	background: var(--mavo-bg, #fff);
 }

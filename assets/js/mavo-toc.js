@@ -21,24 +21,25 @@
 	 * The sticky bar's height isn't known ahead of time (it can change with the
 	 * theme, viewport width, or content), so it's measured at runtime and exposed
 	 * as a CSS custom property that mavo-toc.css uses for the `top` offset. Every
-	 * sticky TOC carries the selector to measure in its `data-sticky-bar`
-	 * attribute (set from the plugin's settings).
+	 * TOC carries the selector to measure in its `data-sticky-bar` attribute (set
+	 * from the plugin's settings) regardless of whether that particular TOC is
+	 * itself sticky, since the menu bar obstruction is a page-wide fact.
 	 */
 	function updateBarOffset() {
-		var sticky = document.querySelector( '.mavo-toc--sticky[data-sticky-bar]' );
-		var selector = sticky ? sticky.getAttribute( 'data-sticky-bar' ) : null;
-		var height = 0;
-
-		if ( selector ) {
-			var bar = document.querySelector( selector );
-			if ( bar ) {
-				height = bar.getBoundingClientRect().height;
-			}
-		}
+		var ref = document.querySelector( '.mavo-toc[data-sticky-bar]' );
+		var height = ref ? measureBar( ref.getAttribute( 'data-sticky-bar' ) ) : 0;
 
 		document.documentElement.style.setProperty( '--mavo-toc-bar-offset', height + 'px' );
 
 		return height;
+	}
+
+	function measureBar( selector ) {
+		if ( ! selector ) {
+			return 0;
+		}
+		var bar = document.querySelector( selector );
+		return bar ? bar.getBoundingClientRect().height : 0;
 	}
 
 	function initCollapsible( toc ) {
@@ -117,6 +118,7 @@
 		var sticky = toc.classList.contains( 'mavo-toc--sticky' );
 		var collapsible = toc.classList.contains( 'mavo-toc--collapsible' );
 		var titleBtn = toc.querySelector( '.mavo-toc__title' );
+		var barSelector = toc.getAttribute( 'data-sticky-bar' );
 
 		toc.querySelectorAll( 'a[href^="#"]' ).forEach( function ( link ) {
 			link.addEventListener( 'click', function ( e ) {
@@ -126,7 +128,7 @@
 				}
 				e.preventDefault();
 
-				var barOffset = parseInt( getComputedStyle( document.documentElement ).getPropertyValue( '--mavo-toc-bar-offset' ), 10 ) || 0;
+				var barOffset = measureBar( barSelector );
 				var tocOffset = 0;
 				if ( sticky ) {
 					// Once stuck, a collapsible TOC shrinks to just its title bar, so
@@ -192,6 +194,23 @@
 			);
 
 			toc._mavoTocObserver.observe( sentinel );
+		}
+
+		if ( collapsible ) {
+			// Re-opening the title while stuck is a one-off peek, not a new
+			// preference: collapse it again as soon as scrolling resumes.
+			window.addEventListener(
+				'scroll',
+				function () {
+					if ( toc.classList.contains( 'mavo-toc--stuck' ) && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
+						toc.classList.add( 'mavo-toc--collapsed' );
+						if ( titleBtn ) {
+							titleBtn.setAttribute( 'aria-expanded', 'false' );
+						}
+					}
+				},
+				{ passive: true }
+			);
 		}
 
 		onReobserve( observe );

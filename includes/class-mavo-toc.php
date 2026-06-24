@@ -253,11 +253,13 @@ class Mavo_TOC {
 		}
 
 		$extra_attrs = $atts['smooth_scroll'] ? ' data-smooth-scroll="1"' : '';
-		if ( $atts['sticky'] ) {
-			$sticky_bar_selector = self::get_options()['sticky_bar_selector'];
-			if ( $sticky_bar_selector ) {
-				$extra_attrs .= ' data-sticky-bar="' . esc_attr( $sticky_bar_selector ) . '"';
-			}
+
+		// Needed even when this particular TOC isn't sticky: the site's fixed menu
+		// bar still obstructs the top of the viewport, so smooth-scroll jumps need
+		// its height regardless of this instance's own sticky setting.
+		$sticky_bar_selector = self::get_options()['sticky_bar_selector'];
+		if ( $sticky_bar_selector ) {
+			$extra_attrs .= ' data-sticky-bar="' . esc_attr( $sticky_bar_selector ) . '"';
 		}
 
 		$html = '<nav class="' . esc_attr( implode( ' ', $classes ) ) . '"' . $extra_attrs . '>';

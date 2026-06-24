@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,6 +63,12 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.2.2 =
+* Fixed: the menu bar's height was only ever measured when a *sticky* TOC was on the page, so the jump-offset silently did nothing on pages where the TOC wasn't sticky. It's now measured for every TOC, sticky or not, and re-measured directly at click time instead of relying on a cached value.
+* Sticky TOC keeps its normal padding while just sitting in its flow position; padding now only tightens once actually pinned against the menu bar.
+* Border replaced with a slight drop-shadow in the normal (non-sticky-pinned) state too.
+* A TOC manually re-opened while stuck collapses again as soon as the user scrolls, instead of staying open indefinitely.
 
 = 1.2.1 =
 * Stuck/collapsed sticky bar loses its top/bottom padding (left/right kept) for a slimmer look.
