@@ -128,13 +128,18 @@
 				}
 				e.preventDefault();
 
-				// Force the collapse now instead of trusting it to happen once
-				// "stuck" fires: a sticky TOC will be pinned at the destination
-				// either way, so its height has to already match what it'll
-				// actually look like there before tocOffset is measured below.
-				if ( sticky && collapsible && titleBtn && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
-					toc.classList.add( 'mavo-toc--collapsed' );
-					titleBtn.setAttribute( 'aria-expanded', 'false' );
+				// Force both "stuck" and collapsed now instead of trusting them to
+				// happen once scrolling reaches that point: a sticky TOC will be
+				// pinned at the destination either way, and CSS gives a stuck,
+				// collapsed TOC a different (smaller) padding/font than a TOC
+				// that's merely collapsed — so its height has to already match
+				// what it'll actually look like there before tocOffset is read.
+				if ( sticky ) {
+					toc.classList.add( 'mavo-toc--stuck' );
+					if ( collapsible && titleBtn && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
+						toc.classList.add( 'mavo-toc--collapsed' );
+						titleBtn.setAttribute( 'aria-expanded', 'false' );
+					}
 				}
 
 				var barOffset = measureBar( barSelector );

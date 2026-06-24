@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,10 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.3.2 =
+* Fixed: the heading could still land partially behind the sticky TOC bar itself after the menu-bar fix. The TOC's own CSS removes its outer padding and shrinks its title font only once it's *also* marked "stuck" (not just collapsed) — the jump calculation now forces that state too before measuring, instead of measuring a taller pre-stuck height. Verified directly against the live page: clearance went from -22px (hidden) to a clean +12px.
+* Added a temporary diagnostic (HTML comment near the TOC, invisible to visitors) to track down the remaining title-language issue — see plugin notes; safe to remove once resolved.
 
 = 1.3.1 =
 * Fixed: the title (and other translatable strings) could still show in English on a Polylang page, because pll_current_language() isn't reliable for the post being viewed until the main query has run, which is after the `init` hook used to load it. Translation loading now also re-runs on `wp`, once Polylang has actually resolved the page's language.

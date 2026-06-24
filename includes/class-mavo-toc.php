@@ -10,6 +10,9 @@ class Mavo_TOC {
 
 	const ASSETS_FINGERPRINT_OPTION = 'mavo_toc_assets_fingerprint';
 
+	/** @var array Temporary diagnostic for the Polylang title-language issue. */
+	private $textdomain_debug = array();
+
 	public function __construct() {
 		add_shortcode( 'mavo_toc', array( $this, 'shortcode' ) );
 		add_filter( 'the_content', array( $this, 'render' ), 100 );
@@ -22,6 +25,7 @@ class Mavo_TOC {
 		// language. The later call simply wins if it differs from the first.
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'wp', array( $this, 'load_textdomain' ) );
+		add_action( 'wp_footer', array( $this, 'print_textdomain_debug' ), 9999 );
 	}
 
 	/**
@@ -32,17 +36,53 @@ class Mavo_TOC {
 	 * locale-based loading for sites not running Polylang.
 	 */
 	public function load_textdomain() {
+		$debug = array(
+			'hook'           => current_filter(),
+			'pll_active'     => function_exists( 'pll_current_language' ) ? '1' : '0',
+			'pll_slug'       => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
+			'get_locale'     => get_locale(),
+			'mofile_exists'  => '0',
+			'load_textdomain_ok' => '0',
+			'sample_translation' => '',
+		);
+
+		$used_pll_path = false;
+
 		if ( function_exists( 'pll_current_language' ) ) {
 			$slug = pll_current_language( 'slug' );
 			if ( $slug ) {
-				$mofile = MAVO_TOC_PATH . 'languages/mavo-toc-' . $slug . '.mo';
-				if ( file_exists( $mofile ) && load_textdomain( 'mavo-toc', $mofile ) ) {
-					return;
+				$mofile                  = MAVO_TOC_PATH . 'languages/mavo-toc-' . $slug . '.mo';
+				$debug['mofile_path']    = $mofile;
+				$debug['mofile_exists']  = file_exists( $mofile ) ? '1' : '0';
+				if ( file_exists( $mofile ) ) {
+					$loaded                       = load_textdomain( 'mavo-toc', $mofile );
+					$debug['load_textdomain_ok']  = $loaded ? '1' : '0';
+					if ( $loaded ) {
+						$used_pll_path = true;
+					}
 				}
 			}
 		}
 
-		load_plugin_textdomain( 'mavo-toc', false, dirname( plugin_basename( MAVO_TOC_FILE ) ) . '/languages' );
+		if ( ! $used_pll_path ) {
+			load_plugin_textdomain( 'mavo-toc', false, dirname( plugin_basename( MAVO_TOC_FILE ) ) . '/languages' );
+		}
+
+		$debug['used_pll_path']     = $used_pll_path ? '1' : '0';
+		$debug['sample_translation'] = __( 'Table of Contents', 'mavo-toc' );
+
+		$this->textdomain_debug = $debug;
+	}
+
+	/**
+	 * Temporary diagnostic for the Polylang title-language issue — safe to
+	 * remove once resolved. Prints nothing visible; only an HTML comment.
+	 */
+	public function print_textdomain_debug() {
+		if ( empty( $this->textdomain_debug ) ) {
+			return;
+		}
+		echo "\n<!-- mavo-toc-lang-debug " . esc_html( wp_json_encode( $this->textdomain_debug ) ) . " -->\n";
 	}
 
 	/**
