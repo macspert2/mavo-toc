@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,10 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.3.3 =
+* Fixed: clicking a TOC link while it was still in its normal (non-sticky) position could still land the heading half behind the TOC bar. Confirmed via direct testing that a sticky element renders with extra spacing before it has actually engaged position: sticky versus once it truly has — even with "stuck" and "collapsed" already forced. The jump now does an instant rough placement first (guaranteeing the TOC has genuinely engaged), then a small corrective smooth scroll using a fresh measurement, plus the stuck/collapse observer is suspended for the duration so it can't undo the forced state mid-scroll.
+* Added `unload_textdomain()` before reloading translations, defensively guarding against a WordPress core behavior where reloading a text domain merges with (and can be overridden by) anything already loaded earlier in the request — and expanded the temporary language diagnostic to capture the translation state at three points (textdomain load, shortcode render, page footer) to track down the remaining title-language issue.
 
 = 1.3.2 =
 * Fixed: the heading could still land partially behind the sticky TOC bar itself after the menu-bar fix. The TOC's own CSS removes its outer padding and shrinks its title font only once it's *also* marked "stuck" (not just collapsed) — the jump calculation now forces that state too before measuring, instead of measuring a taller pre-stuck height. Verified directly against the live page: clearance went from -22px (hidden) to a clean +12px.

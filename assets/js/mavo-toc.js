@@ -120,6 +120,18 @@
 		var titleBtn = toc.querySelector( '.mavo-toc__title' );
 		var barSelector = toc.getAttribute( 'data-sticky-bar' );
 
+		function computeScrollTarget( target ) {
+			var barOffset = measureBar( barSelector );
+			var tocOffset = 0;
+			if ( sticky ) {
+				// Once stuck, a collapsible TOC shrinks to just its title bar, so
+				// that's the height that will actually obstruct the heading.
+				tocOffset = ( collapsible && titleBtn ? titleBtn : toc ).getBoundingClientRect().height;
+			}
+			var targetTop = target.getBoundingClientRect().top + window.pageYOffset;
+			return Math.max( 0, targetTop - barOffset - tocOffset - 12 );
+		}
+
 		toc.querySelectorAll( 'a[href^="#"]' ).forEach( function ( link ) {
 			link.addEventListener( 'click', function ( e ) {
 				var target = document.getElementById( link.getAttribute( 'href' ).slice( 1 ) );
@@ -142,18 +154,40 @@
 					}
 				}
 
-				var barOffset = measureBar( barSelector );
-				var tocOffset = 0;
-				if ( sticky ) {
-					// Once stuck, a collapsible TOC shrinks to just its title bar, so
-					// that's the height that will actually obstruct the heading.
-					tocOffset = ( collapsible && titleBtn ? titleBtn : toc ).getBoundingClientRect().height;
+				// The stuck/collapse observer would otherwise re-evaluate at
+				// intermediate scroll positions reached *during* the animation
+				// (where the sentinel hasn't crossed its threshold yet, since the
+				// click can happen well before that point), briefly undoing the
+				// forced state above and shifting the layout mid-scroll. Suspended
+				// here, restored once scrolling settles.
+				var observer = toc._mavoTocObserver;
+				if ( observer ) {
+					observer.disconnect();
 				}
 
-				var targetTop = target.getBoundingClientRect().top + window.pageYOffset;
-				var scrollTo = Math.max( 0, targetTop - barOffset - tocOffset - 12 );
+				// A sticky element apparently renders slightly differently (margins
+				// collapse with neighbours) before it has *actually* engaged
+				// position: sticky versus once it truly has, even with the classes
+				// above already forced — measured directly, this was off by ~35px
+				// in testing. An instant jump first guarantees we're genuinely past
+				// the engagement point, so a second, corrected measurement (next
+				// frame) reflects how the TOC really renders once stuck, with a
+				// short smooth scroll covering only that small remaining gap.
+				window.scrollTo( { top: computeScrollTarget( target ), behavior: 'instant' } );
 
-				window.scrollTo( { top: scrollTo, behavior: 'smooth' } );
+				requestAnimationFrame( function () {
+					window.scrollTo( { top: computeScrollTarget( target ), behavior: 'smooth' } );
+
+					if ( observer && toc._mavoTocSentinel ) {
+						var resume = function () {
+							clearTimeout( resumeTimer );
+							window.removeEventListener( 'scrollend', resume );
+							observer.observe( toc._mavoTocSentinel );
+						};
+						var resumeTimer = setTimeout( resume, 1000 );
+						window.addEventListener( 'scrollend', resume, { once: true } );
+					}
+				} );
 
 				if ( history.pushState ) {
 					history.pushState( null, '', link.getAttribute( 'href' ) );
@@ -179,6 +213,7 @@
 		sentinel.setAttribute( 'aria-hidden', 'true' );
 		sentinel.style.height = '1px';
 		toc.parentNode.insertBefore( sentinel, toc );
+		toc._mavoTocSentinel = sentinel;
 
 		var collapsible = toc.classList.contains( 'mavo-toc--collapsible' );
 		var titleBtn = toc.querySelector( '.mavo-toc__title' );

@@ -36,15 +36,27 @@ class Mavo_TOC {
 	 * locale-based loading for sites not running Polylang.
 	 */
 	public function load_textdomain() {
+		global $l10n;
+
 		$debug = array(
-			'hook'           => current_filter(),
-			'pll_active'     => function_exists( 'pll_current_language' ) ? '1' : '0',
-			'pll_slug'       => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
-			'get_locale'     => get_locale(),
-			'mofile_exists'  => '0',
-			'load_textdomain_ok' => '0',
-			'sample_translation' => '',
+			'hook'                  => current_filter(),
+			'pll_active'            => function_exists( 'pll_current_language' ) ? '1' : '0',
+			'pll_slug'              => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
+			'get_locale'            => get_locale(),
+			'already_loaded_before' => isset( $l10n['mavo-toc'] ) ? '1' : '0',
+			'mofile_exists'         => '0',
+			'load_textdomain_ok'    => '0',
+			'sample_translation'    => '',
 		);
+
+		// Defensive: load_textdomain() *merges* with anything already loaded for
+		// this domain, and existing entries win over the newly loaded ones for
+		// matching strings — so if anything loaded this domain earlier in the
+		// request (e.g. WP's just-in-time loader, triggered by an early __()
+		// call, using whatever locale was active before Polylang switched it),
+		// our correct load could be silently overridden. Unloading first
+		// guarantees a clean slate.
+		unload_textdomain( 'mavo-toc' );
 
 		$used_pll_path = false;
 
@@ -68,10 +80,10 @@ class Mavo_TOC {
 			load_plugin_textdomain( 'mavo-toc', false, dirname( plugin_basename( MAVO_TOC_FILE ) ) . '/languages' );
 		}
 
-		$debug['used_pll_path']     = $used_pll_path ? '1' : '0';
+		$debug['used_pll_path']      = $used_pll_path ? '1' : '0';
 		$debug['sample_translation'] = __( 'Table of Contents', 'mavo-toc' );
 
-		$this->textdomain_debug = $debug;
+		$this->textdomain_debug[ current_filter() ] = $debug;
 	}
 
 	/**
@@ -79,6 +91,12 @@ class Mavo_TOC {
 	 * remove once resolved. Prints nothing visible; only an HTML comment.
 	 */
 	public function print_textdomain_debug() {
+		$this->textdomain_debug['at_footer'] = array(
+			'pll_slug'           => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
+			'get_locale'         => get_locale(),
+			'sample_translation' => __( 'Table of Contents', 'mavo-toc' ),
+		);
+
 		if ( empty( $this->textdomain_debug ) ) {
 			return;
 		}
@@ -165,6 +183,14 @@ class Mavo_TOC {
 		}
 
 		$options = self::get_options();
+
+		if ( ! isset( $this->textdomain_debug['at_shortcode_render'] ) ) {
+			$this->textdomain_debug['at_shortcode_render'] = array(
+				'pll_slug'    => function_exists( 'pll_current_language' ) ? (string) pll_current_language( 'slug' ) : 'n/a',
+				'get_locale'  => get_locale(),
+				'title_value' => $options['title'],
+			);
+		}
 
 		$atts = shortcode_atts(
 			array(

@@ -32,7 +32,7 @@
 	margin-left: calc(50% - 50vw);
 	margin-right: calc(50% - 50vw);
 	border-radius: 0;
-	background: var(--mavo-bg, #fff);
+	background: rgba(255, 255, 255, 0.7);
 }
 
 .mavo-toc--sticky.mavo-toc--stuck.mavo-toc--collapsed .mavo-toc__title {
