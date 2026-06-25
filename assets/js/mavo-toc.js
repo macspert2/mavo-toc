@@ -54,8 +54,16 @@
 	 * between. The `hidden` attribute (not display:none) is applied only once
 	 * a collapse has actually finished, so the links lose tab focusability
 	 * exactly when they become invisible, not before.
+	 *
+	 * `instant`, when true, skips all of that and applies the end state with no
+	 * transition at all. Used right before a click-triggered jump: the TOC is
+	 * about to scroll out of view anyway (nothing to see), and the jump's own
+	 * offset math measures the page immediately afterward — if the collapse
+	 * were still animating, that measurement would be taken mid-shrink, the
+	 * page would keep shifting for the next 0.5s, and the heading would land
+	 * behind wherever the TOC happened to be when the measurement was taken.
 	 */
-	function setCollapsed( toc, collapsed, titleBtn ) {
+	function setCollapsed( toc, collapsed, titleBtn, instant ) {
 		var body = toc.querySelector( '.mavo-toc__body' );
 
 		toc.classList.toggle( 'mavo-toc--collapsed', collapsed );
@@ -68,6 +76,15 @@
 		}
 
 		clearTimeout( body._mavoTocHideTimer );
+
+		if ( instant ) {
+			body.style.transition = 'none';
+			body.hidden = collapsed;
+			body.style.maxHeight = collapsed ? '0px' : '';
+			void body.offsetHeight; // forces the line above to apply before transitions are re-enabled
+			body.style.transition = '';
+			return;
+		}
 
 		if ( collapsed ) {
 			body.hidden = false;
@@ -165,6 +182,41 @@
 	}
 
 	/**
+	 * Once stuck and collapsed, a TOC's own height is just whatever its title
+	 * bar's font-size/padding (fixed in CSS) renders at — it never depends on
+	 * which heading is being jumped to, or on a collapse animation having
+	 * actually finished. Measuring it live at every click meant it could be
+	 * read mid-collapse instead. This measures it once, by briefly toggling the
+	 * stuck/collapsed classes (synchronously added and removed in the same
+	 * tick, so nothing is ever actually painted at the probed state), and
+	 * callers reuse that fixed value from then on instead of re-measuring.
+	 */
+	function measureStuckTocHeight( toc, titleBtn, collapsible ) {
+		var target = collapsible && titleBtn ? titleBtn : toc;
+
+		var addedStuck = ! toc.classList.contains( 'mavo-toc--stuck' );
+		if ( addedStuck ) {
+			toc.classList.add( 'mavo-toc--stuck' );
+		}
+
+		var addedCollapsed = collapsible && ! toc.classList.contains( 'mavo-toc--collapsed' );
+		if ( addedCollapsed ) {
+			toc.classList.add( 'mavo-toc--collapsed' );
+		}
+
+		var height = target.getBoundingClientRect().height;
+
+		if ( addedStuck ) {
+			toc.classList.remove( 'mavo-toc--stuck' );
+		}
+		if ( addedCollapsed ) {
+			toc.classList.remove( 'mavo-toc--collapsed' );
+		}
+
+		return height;
+	}
+
+	/**
 	 * A plain scrollIntoView({block:'start'}) lines the heading up with the very
 	 * top of the viewport, which is exactly where the fixed menu bar (and, once
 	 * scrolled that far, our own stuck TOC bar) sits — hiding the heading behind
@@ -179,17 +231,12 @@
 		var collapsible = toc.classList.contains( 'mavo-toc--collapsible' );
 		var titleBtn = toc.querySelector( '.mavo-toc__title' );
 		var barSelector = toc.getAttribute( 'data-sticky-bar' );
+		var stuckTocHeight = sticky ? measureStuckTocHeight( toc, titleBtn, collapsible ) : 0;
 
 		function computeScrollTarget( target ) {
 			var barOffset = measureBar( barSelector );
-			var tocOffset = 0;
-			if ( sticky ) {
-				// Once stuck, a collapsible TOC shrinks to just its title bar, so
-				// that's the height that will actually obstruct the heading.
-				tocOffset = ( collapsible && titleBtn ? titleBtn : toc ).getBoundingClientRect().height;
-			}
 			var targetTop = target.getBoundingClientRect().top + window.pageYOffset;
-			return Math.max( 0, targetTop - barOffset - tocOffset - 12 );
+			return Math.max( 0, targetTop - barOffset - stuckTocHeight - 12 );
 		}
 
 		toc.querySelectorAll( 'a[href^="#"]' ).forEach( function ( link ) {
@@ -202,14 +249,17 @@
 
 				// Force both "stuck" and collapsed now instead of trusting them to
 				// happen once scrolling reaches that point: a sticky TOC will be
-				// pinned at the destination either way, and CSS gives a stuck,
-				// collapsed TOC a different (smaller) padding/font than a TOC
-				// that's merely collapsed — so its height has to already match
-				// what it'll actually look like there before tocOffset is read.
+				// pinned at the destination either way. stuckTocHeight already
+				// accounts for the TOC's own height once this applies, but
+				// targetTop (read by computeScrollTarget below) doesn't — it's
+				// the heading's actual position, which this collapse shifts by
+				// reclaiming the body's space. Instant, not animated: that
+				// measurement happens immediately after, and needs the page
+				// already fully settled rather than mid-collapse.
 				if ( sticky ) {
 					toc.classList.add( 'mavo-toc--stuck' );
 					if ( collapsible && titleBtn && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
-						setCollapsed( toc, true, titleBtn );
+						setCollapsed( toc, true, titleBtn, true );
 					}
 				}
 

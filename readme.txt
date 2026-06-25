@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.5.4
+Stable tag: 1.5.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,9 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.5.5 =
+* Fixed a regression from the collapse animation: clicking a TOC link computed the jump distance using the TOC's height *before* its collapse animation had actually played out, so the page kept shifting underneath the already-completed scroll and the heading could end up scrolled past, behind the menu bar. The TOC's own height once stuck+collapsed is now measured once (it never actually depends on which heading is being clicked) instead of re-measured live at every click, and the click-triggered collapse itself applies instantly rather than animating, so the heading's position is always measured against the fully-settled page.
 
 = 1.5.4 =
 * Collapse animation (the list closing, and the whole box easing into looking like part of the menu bar) slowed from 0.35s to 0.5s.
