@@ -218,6 +218,33 @@
 		var collapsible = toc.classList.contains( 'mavo-toc--collapsible' );
 		var titleBtn = toc.querySelector( '.mavo-toc__title' );
 
+		function syncStuck( stuck ) {
+			toc.classList.toggle( 'mavo-toc--stuck', stuck );
+
+			if ( collapsible ) {
+				toc.classList.toggle( 'mavo-toc--collapsed', stuck );
+				if ( titleBtn ) {
+					titleBtn.setAttribute( 'aria-expanded', stuck ? 'false' : 'true' );
+				}
+			}
+		}
+
+		// Safety net for the IntersectionObserver below: an instant/large scroll
+		// jump (a deep-linked #hash loaded directly, browser back/forward
+		// restoring scroll position) doesn't always trigger an observer
+		// callback even though CSS position: sticky has genuinely engaged
+		// (confirmed in testing) — checking the TOC's own position directly
+		// catches what the sentinel-crossing approach misses. Comparing against
+		// the *current* class avoids redundant churn when nothing's actually
+		// changed (it would otherwise re-toggle collapsed on every scroll tick,
+		// fighting the "peek" feature below).
+		function syncFromPosition( barOffset ) {
+			var stuck = toc.getBoundingClientRect().top <= barOffset + 1;
+			if ( stuck !== toc.classList.contains( 'mavo-toc--stuck' ) ) {
+				syncStuck( stuck );
+			}
+		}
+
 		function observe() {
 			var barOffset = parseInt( getComputedStyle( document.documentElement ).getPropertyValue( '--mavo-toc-bar-offset' ), 10 ) || 0;
 
@@ -236,21 +263,30 @@
 						var stuck = entry.rootBounds
 							? entry.boundingClientRect.top < entry.rootBounds.top
 							: ! entry.isIntersecting;
-						toc.classList.toggle( 'mavo-toc--stuck', stuck );
-
-						if ( collapsible ) {
-							toc.classList.toggle( 'mavo-toc--collapsed', stuck );
-							if ( titleBtn ) {
-								titleBtn.setAttribute( 'aria-expanded', stuck ? 'false' : 'true' );
-							}
-						}
+						syncStuck( stuck );
 					} );
 				},
 				{ rootMargin: '-' + barOffset + 'px 0px 0px 0px' }
 			);
 
 			toc._mavoTocObserver.observe( sentinel );
+
+			// Covers the case where the page already landed scrolled past the
+			// engagement point (e.g. a deep-linked #hash) before this ever ran —
+			// observe()'s own initial callback fires from the *current* state,
+			// but only once IntersectionObserver decides to report it, which is
+			// exactly what's unreliable here.
+			syncFromPosition( barOffset );
 		}
+
+		window.addEventListener(
+			'scroll',
+			function () {
+				var barOffset = parseInt( getComputedStyle( document.documentElement ).getPropertyValue( '--mavo-toc-bar-offset' ), 10 ) || 0;
+				syncFromPosition( barOffset );
+			},
+			{ passive: true }
+		);
 
 		if ( collapsible ) {
 			// Re-opening the title while stuck is a one-off peek, not a new

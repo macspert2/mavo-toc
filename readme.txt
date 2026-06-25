@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,6 +86,10 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.4.2 =
+* Fixed: a URL with a #heading-id loaded directly (the kind your own browser's address bar shows after clicking a TOC link, via history.pushState) triggers the *browser's own* native scroll-to-anchor before any of our JS runs, landing the heading behind the fixed menu bar. A `scroll-margin-top` CSS rule on post headings now covers that path too, not just our own click handler.
+* Fixed: an instant/large scroll jump (that same deep-linked #hash, or browser back/forward restoring scroll position) didn't always get marked "stuck" by the IntersectionObserver, even though CSS position: sticky had genuinely engaged — confirmed directly in testing. The TOC's own position is now also checked directly on scroll and on initial setup as a safety net, independent of whether the observer's sentinel-crossing fired.
 
 = 1.4.1 =
 * The automatic cache purge on asset change now also clears Swift Performance's cache (`Swift_Performance_Cache::clear_all_cache()`), not just Autoptimize's, since it caches full pages independently. Cloudflare's edge cache sits in front of both and can't be purged from this plugin without API credentials it doesn't have — see the description below for what to do about that layer.
