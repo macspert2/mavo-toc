@@ -42,15 +42,75 @@
 		return bar ? bar.getBoundingClientRect().height : 0;
 	}
 
+	/**
+	 * A plain display:none snap (the previous approach) can't be animated and
+	 * instantly reclaims the body's space, making whatever follows the TOC jump
+	 * up the page. Animating max-height instead needs an explicit pixel value
+	 * to transition to/from — "none"/"auto" (what it would otherwise be) isn't
+	 * animatable — so this measures the real height and sets it just before
+	 * each transition. Collapsing additionally waits a frame before applying
+	 * the target (0px): setting both values in the same tick would let the
+	 * browser collapse them into one change with nothing to actually animate
+	 * between. The `hidden` attribute (not display:none) is applied only once
+	 * a collapse has actually finished, so the links lose tab focusability
+	 * exactly when they become invisible, not before.
+	 */
+	function setCollapsed( toc, collapsed, titleBtn ) {
+		var body = toc.querySelector( '.mavo-toc__body' );
+
+		toc.classList.toggle( 'mavo-toc--collapsed', collapsed );
+		if ( titleBtn ) {
+			titleBtn.setAttribute( 'aria-expanded', collapsed ? 'false' : 'true' );
+		}
+
+		if ( ! body ) {
+			return;
+		}
+
+		clearTimeout( body._mavoTocHideTimer );
+
+		if ( collapsed ) {
+			body.hidden = false;
+			body.style.maxHeight = body.scrollHeight + 'px';
+			// A single rAF can still fire before the browser has actually
+			// painted the frozen height above (observed in testing) — waiting
+			// for a second one reliably guarantees that paint has happened
+			// before the target value is applied, or there's nothing to
+			// animate from.
+			requestAnimationFrame( function () {
+				requestAnimationFrame( function () {
+					body.style.maxHeight = '0px';
+				} );
+			} );
+			body._mavoTocHideTimer = setTimeout( function () {
+				body.hidden = true;
+			}, 400 );
+		} else {
+			body.hidden = false;
+			body.style.maxHeight = body.scrollHeight + 'px';
+			body._mavoTocHideTimer = setTimeout( function () {
+				// Released once fully open so later content changes (Show more,
+				// Show subheadings) aren't clipped at this now-stale height.
+				body.style.maxHeight = '';
+			}, 400 );
+		}
+	}
+
 	function initCollapsible( toc ) {
 		var titleBtn = toc.querySelector( '.mavo-toc__title' );
 		if ( ! titleBtn || ! toc.classList.contains( 'mavo-toc--collapsible' ) ) {
 			return;
 		}
 
+		var body = toc.querySelector( '.mavo-toc__body' );
+		if ( body && toc.classList.contains( 'mavo-toc--collapsed' ) ) {
+			// Matches a server-rendered "collapsed by default" instantly, with
+			// no animation — only later, actual transitions should animate.
+			body.hidden = true;
+		}
+
 		titleBtn.addEventListener( 'click', function () {
-			var collapsed = toc.classList.toggle( 'mavo-toc--collapsed' );
-			titleBtn.setAttribute( 'aria-expanded', collapsed ? 'false' : 'true' );
+			setCollapsed( toc, ! toc.classList.contains( 'mavo-toc--collapsed' ), titleBtn );
 		} );
 	}
 
@@ -149,8 +209,7 @@
 				if ( sticky ) {
 					toc.classList.add( 'mavo-toc--stuck' );
 					if ( collapsible && titleBtn && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
-						toc.classList.add( 'mavo-toc--collapsed' );
-						titleBtn.setAttribute( 'aria-expanded', 'false' );
+						setCollapsed( toc, true, titleBtn );
 					}
 				}
 
@@ -222,10 +281,7 @@
 			toc.classList.toggle( 'mavo-toc--stuck', stuck );
 
 			if ( collapsible ) {
-				toc.classList.toggle( 'mavo-toc--collapsed', stuck );
-				if ( titleBtn ) {
-					titleBtn.setAttribute( 'aria-expanded', stuck ? 'false' : 'true' );
-				}
+				setCollapsed( toc, stuck, titleBtn );
 			}
 		}
 
@@ -304,10 +360,7 @@
 					lastScrollY = currentScrollY;
 
 					if ( moved && toc.classList.contains( 'mavo-toc--stuck' ) && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
-						toc.classList.add( 'mavo-toc--collapsed' );
-						if ( titleBtn ) {
-							titleBtn.setAttribute( 'aria-expanded', 'false' );
-						}
+						setCollapsed( toc, true, titleBtn );
 					}
 				},
 				{ passive: true }

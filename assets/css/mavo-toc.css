@@ -116,8 +116,15 @@
 	padding-bottom: 0;
 }
 
-.mavo-toc--collapsed .mavo-toc__body {
-	display: none;
+/* Collapsing/expanding is driven from JS (mavo-toc.js, setCollapsed()), which
+   sets an explicit max-height before animating to/from it — "none"/"auto"
+   (what this would otherwise be) can't be transitioned. The JS also toggles
+   the `hidden` attribute once a collapse animation finishes, removing the
+   (by then invisible) links from the tab order; display:none would skip the
+   animation outright, which is why this isn't a plain CSS rule. */
+.mavo-toc__body {
+	overflow: hidden;
+	transition: max-height .35s ease;
 }
 
 .mavo-toc__list,
@@ -158,7 +165,7 @@
 }
 
 .mavo-toc__list a {
-	color: inherit;
+	color: var(--mavo-blue, #4e74a5);
 	text-decoration: none;
 }
 

@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,10 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.5.2 =
+* List entries are now the brand blue link color (matching the rest of the site's links), brown on hover, instead of plain inherited text color.
+* The list no longer disappears instantly when collapsing (clicking the title, or auto-collapsing once stuck to the menu bar) — it now animates its height closed over 0.35s instead of snapping away, so content below it doesn't jump. Verified directly that the animation actually runs (not just that the end state is correct) by sampling its height across the transition.
 
 = 1.5.1 =
 * The transition into "stuck and collapsed" (looking like an extension of the menu bar) is now a real, visible animation: width, the full-bleed margins, border-radius, and background now ease over 0.35s instead of snapping instantly, with the title's font-size/padding/margin easing alongside. Required making width and box-sizing explicit on the TOC (previously relying on the browser's unanimatable default "auto" sizing) — verified directly that this doesn't change its normal (non-stuck) appearance or cause any overflow.
