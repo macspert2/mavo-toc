@@ -27,13 +27,13 @@
 	box-sizing: border-box;
 	width: 100%;
 	transition:
-		box-shadow .35s ease,
-		padding .35s ease,
-		background-color .35s ease,
-		border-radius .35s ease,
-		width .35s ease,
-		margin-left .35s ease,
-		margin-right .35s ease;
+		box-shadow .5s ease,
+		padding .5s ease,
+		background-color .5s ease,
+		border-radius .5s ease,
+		width .5s ease,
+		margin-left .5s ease,
+		margin-right .5s ease;
 }
 
 .mavo-toc--sticky {
@@ -70,12 +70,12 @@
 }
 
 .mavo-toc__title {
-	margin: 0 0 0.5em;
+	margin: 0;
 	background: none;
 	color: var(--mavo-blue, #4e74a5);
 	font-weight: 600;
 	font-size: 1.1em;
-	transition: font-size .35s ease, padding .35s ease, margin .35s ease;
+	transition: font-size .5s ease, padding .5s ease, margin .5s ease;
 }
 
 /* The title and toggle buttons are real <button> elements, so without this the
@@ -124,7 +124,7 @@
    animation outright, which is why this isn't a plain CSS rule. */
 .mavo-toc__body {
 	overflow: hidden;
-	transition: max-height .35s ease;
+	transition: max-height .5s ease;
 }
 
 .mavo-toc__list,

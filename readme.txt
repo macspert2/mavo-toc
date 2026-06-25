@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.5.2
+Stable tag: 1.5.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -87,6 +87,9 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.5.4 =
+* Collapse animation (the list closing, and the whole box easing into looking like part of the menu bar) slowed from 0.35s to 0.5s.
 
 = 1.5.2 =
 * List entries are now the brand blue link color (matching the rest of the site's links), brown on hover, instead of plain inherited text color.

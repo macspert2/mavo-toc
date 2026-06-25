@@ -84,7 +84,7 @@
 			} );
 			body._mavoTocHideTimer = setTimeout( function () {
 				body.hidden = true;
-			}, 4000 );
+			}, 550 );
 		} else {
 			body.hidden = false;
 			body.style.maxHeight = body.scrollHeight + 'px';
@@ -92,7 +92,7 @@
 				// Released once fully open so later content changes (Show more,
 				// Show subheadings) aren't clipped at this now-stale height.
 				body.style.maxHeight = '';
-			}, 400 );
+			}, 550 );
 		}
 	}
 
