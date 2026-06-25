@@ -146,42 +146,6 @@
 	}
 
 	/**
-	 * Reveals one more nesting depth per click (depth is relative, 0 = the
-	 * shallowest headings shown, not a literal h1-h6 number) until everything is
-	 * shown, then resets back to depth 0 on the next click.
-	 */
-	function initLevelsToggle( toc ) {
-		var btn = toc.querySelector( '.mavo-toc__btn--levels' );
-		var lists = toc.querySelectorAll( '.mavo-toc__list[data-depth]' );
-		if ( ! btn || ! lists.length ) {
-			return;
-		}
-
-		var maxDepth = 0;
-		lists.forEach( function ( list ) {
-			maxDepth = Math.max( maxDepth, parseInt( list.getAttribute( 'data-depth' ), 10 ) || 0 );
-		} );
-
-		var current = 0;
-
-		function apply() {
-			lists.forEach( function ( list ) {
-				var depth = parseInt( list.getAttribute( 'data-depth' ), 10 ) || 0;
-				list.style.display = depth <= current ? '' : 'none';
-			} );
-			btn.setAttribute( 'aria-expanded', current > 0 ? 'true' : 'false' );
-			btn.textContent = current >= maxDepth
-				? btn.getAttribute( 'data-label-collapse' )
-				: btn.getAttribute( 'data-label-expand' );
-		}
-
-		btn.addEventListener( 'click', function () {
-			current = current < maxDepth ? current + 1 : 0;
-			apply();
-		} );
-	}
-
-	/**
 	 * Once stuck and collapsed, a TOC's own height is just whatever its title
 	 * bar's font-size/padding (fixed in CSS) renders at — it never depends on
 	 * which heading is being jumped to, or on a collapse animation having
@@ -432,7 +396,6 @@
 
 		document.querySelectorAll( '.mavo-toc' ).forEach( function ( toc ) {
 			initCollapsible( toc );
-			initLevelsToggle( toc );
 			initMoreToggle( toc );
 			initSmoothScroll( toc );
 			initStuckObserver( toc, function ( observe ) {

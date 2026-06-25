@@ -16,14 +16,6 @@ msgid "Table of Contents"
 msgstr ""
 
 #: includes/class-mavo-toc.php
-msgid "Show subheadings"
-msgstr ""
-
-#: includes/class-mavo-toc.php
-msgid "Hide subheadings"
-msgstr ""
-
-#: includes/class-mavo-toc.php
 msgid "Show more"
 msgstr ""
 

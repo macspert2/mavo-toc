@@ -11,12 +11,6 @@ msgstr ""
 msgid "Table of Contents"
 msgstr "Inhaltsverzeichnis"
 
-msgid "Show subheadings"
-msgstr "Unterüberschriften anzeigen"
-
-msgid "Hide subheadings"
-msgstr "Unterüberschriften ausblenden"
-
 msgid "Show more"
 msgstr "Mehr anzeigen"
 

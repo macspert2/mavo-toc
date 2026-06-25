@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.5.5
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,10 +20,9 @@ Anchor" field is respected if already set).
 Global defaults are configured under Settings > Mavo TOC, and every shortcode
 attribute below overrides the corresponding default for that one instance.
 
-When a heading range spans more than one level (e.g. H2-H4), the list starts
-collapsed to the shallowest level only; a "Show subheadings" control reveals
-one further level per click until everything is shown. This control only
-appears when there's actually a deeper level to reveal.
+When a heading range spans more than one level (e.g. H2-H4), every level in
+that range is shown at once, nested under its parent heading — use
+`min_level`/`max_level` to control how much of that range is included at all.
 
 When `sticky` is on, the box sticks just below the site's fixed/sticky menu
 bar (configured as a CSS selector under Settings > Mavo TOC, "Sticky bar CSS
@@ -87,6 +86,9 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.6.0 =
+* Removed the "Show subheadings"/"Hide subheadings" progressive-reveal control. Every heading level within `min_level`/`max_level` now shows at once, nested under its parent, instead of starting collapsed to the shallowest level — use those two attributes to control how much of the range is included at all.
 
 = 1.5.5 =
 * Fixed a regression from the collapse animation: clicking a TOC link computed the jump distance using the TOC's height *before* its collapse animation had actually played out, so the page kept shifting underneath the already-completed scroll and the heading could end up scrolled past, behind the menu bar. The TOC's own height once stuck+collapsed is now measured once (it never actually depends on which heading is being clicked) instead of re-measured live at every click, and the click-triggered collapse itself applies instantly rather than animating, so the heading's position is always measured against the fully-settled page.

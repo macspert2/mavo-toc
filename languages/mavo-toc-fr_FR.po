@@ -11,12 +11,6 @@ msgstr ""
 msgid "Table of Contents"
 msgstr "Table des matières"
 
-msgid "Show subheadings"
-msgstr "Afficher les sous-titres"
-
-msgid "Hide subheadings"
-msgstr "Masquer les sous-titres"
-
 msgid "Show more"
 msgstr "Afficher plus"
 

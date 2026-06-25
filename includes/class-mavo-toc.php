@@ -65,8 +65,6 @@ class Mavo_TOC {
 
 		self::$strings = array(
 			'Table of Contents' => __( 'Table of Contents', 'mavo-toc' ),
-			'Show subheadings'  => __( 'Show subheadings', 'mavo-toc' ),
-			'Hide subheadings'  => __( 'Hide subheadings', 'mavo-toc' ),
 			'Show more'         => __( 'Show more', 'mavo-toc' ),
 			'Show less'         => __( 'Show less', 'mavo-toc' ),
 		);
@@ -325,10 +323,9 @@ class Mavo_TOC {
 		$index = 0;
 		$tree  = $this->build_branch( $items, $index, 0 );
 
-		$tag       = $atts['numbered'] ? 'ol' : 'ul';
-		$counter   = 0;
-		$max_depth = 0;
-		$list      = $this->render_branch( $tree, $tag, (int) $atts['limit'], $counter, 0, $max_depth );
+		$tag     = $atts['numbered'] ? 'ol' : 'ul';
+		$counter = 0;
+		$list    = $this->render_branch( $tree, $tag, (int) $atts['limit'], $counter );
 
 		$classes = array( 'mavo-toc' );
 		if ( $atts['sticky'] ) {
@@ -370,10 +367,6 @@ class Mavo_TOC {
 		$html .= '<div class="mavo-toc__body">';
 		$html .= $list;
 
-		if ( $max_depth > 0 ) {
-			$html .= '<button type="button" class="mavo-toc__btn mavo-toc__btn--levels" aria-expanded="false" data-label-expand="' . esc_attr( self::t( 'Show subheadings' ) ) . '" data-label-collapse="' . esc_attr( self::t( 'Hide subheadings' ) ) . '">' . esc_html( self::t( 'Show subheadings' ) ) . '</button>';
-		}
-
 		if ( $atts['limit'] > 0 && $counter > $atts['limit'] ) {
 			$html .= '<button type="button" class="mavo-toc__btn mavo-toc__btn--more" data-label-more="' . esc_attr( self::t( 'Show more' ) ) . '" data-label-less="' . esc_attr( self::t( 'Show less' ) ) . '">' . esc_html( self::t( 'Show more' ) ) . '</button>';
 		}
@@ -407,32 +400,19 @@ class Mavo_TOC {
 		return $branch;
 	}
 
-	/**
-	 * $depth is the nesting depth relative to the shallowest headings shown (0 for
-	 * the top-level list), not the literal h1-h6 number, so progressive reveal
-	 * works the same way regardless of which heading levels are actually in range.
-	 * Every list rendered at depth > 0 is tagged with that depth so the front-end
-	 * script can reveal one more level at a time; $max_depth records how deep the
-	 * tree actually goes so build_html() knows whether to render the control at all.
-	 */
-	private function render_branch( array $branch, $tag, $limit, &$counter, $depth, &$max_depth ) {
+	private function render_branch( array $branch, $tag, $limit, &$counter ) {
 		if ( empty( $branch ) ) {
 			return '';
 		}
 
-		$depth_attr = $depth > 0 ? ' data-depth="' . (int) $depth . '"' : '';
-		if ( $depth > $max_depth ) {
-			$max_depth = $depth;
-		}
-
-		$html = "<{$tag} class=\"mavo-toc__list\"{$depth_attr}>";
+		$html = "<{$tag} class=\"mavo-toc__list\">";
 
 		foreach ( $branch as $node ) {
 			++$counter;
 			$hidden = ( $limit > 0 && $counter > $limit ) ? ' mavo-toc__item--hidden' : '';
 			$html  .= '<li class="mavo-toc__item' . $hidden . '">';
 			$html  .= '<a href="#' . esc_attr( $node['heading']['id'] ) . '">' . esc_html( $node['heading']['text'] ) . '</a>';
-			$html  .= $this->render_branch( $node['children'], $tag, $limit, $counter, $depth + 1, $max_depth );
+			$html  .= $this->render_branch( $node['children'], $tag, $limit, $counter );
 			$html  .= '</li>';
 		}
 
