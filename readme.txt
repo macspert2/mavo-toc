@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,6 +30,19 @@ bar (configured as a CSS selector under Settings > Mavo TOC, "Sticky bar CSS
 selector") instead of underneath it, and automatically collapses to its title
 only while stuck to the bar, reopening once scrolled back to its normal
 position in the post.
+
+== Caching ==
+
+Editing mavo-toc.css or mavo-toc.js automatically busts the plugin's own
+enqueued URL (versioned by file modification time) and triggers a one-time
+purge of Autoptimize's and Swift Performance's caches, if either is active,
+the next time any page loads after the change. Neither of those is reachable
+until the *page* serving the old HTML is itself refetched, though — and on
+this site that's normally Cloudflare's job, which this plugin has no API
+credentials to purge automatically. If a change still doesn't show up after
+a purge of the WordPress-level caches, check Cloudflare's own cache (a manual
+"Purge Everything", or a Cache Rule that doesn't hold HTML for as long as
+static assets) before assuming the plugin itself is at fault.
 
 == Languages ==
 
@@ -73,6 +86,9 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.4.1 =
+* The automatic cache purge on asset change now also clears Swift Performance's cache (`Swift_Performance_Cache::clear_all_cache()`), not just Autoptimize's, since it caches full pages independently. Cloudflare's edge cache sits in front of both and can't be purged from this plugin without API credentials it doesn't have — see the description below for what to do about that layer.
 
 = 1.4.0 =
 * Found the actual cause of the title-language issue, and it had nothing to do with text domains: the Settings page's "Default title" field was pre-filled with the *resolved* default, which is shown in wp-admin's own locale (not a front-end visitor's Polylang language). Saving the settings form for any reason — even just to change an unrelated option — silently froze that resolved text into the database as a permanent override, applied to every visitor regardless of language from then on.

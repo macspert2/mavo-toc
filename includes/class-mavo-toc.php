@@ -24,7 +24,7 @@ class Mavo_TOC {
 		add_shortcode( 'mavo_toc', array( $this, 'shortcode' ) );
 		add_filter( 'the_content', array( $this, 'render' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
-		add_action( 'init', array( $this, 'maybe_purge_autoptimize' ) );
+		add_action( 'init', array( $this, 'maybe_purge_caches' ) );
 		// `init` covers wp-admin (the settings page) and is a safe baseline, but
 		// pll_current_language() isn't reliable for *which post* is being viewed
 		// until the main query has resolved it, so this also re-runs on `wp`
@@ -136,15 +136,21 @@ class Mavo_TOC {
 	}
 
 	/**
-	 * Autoptimize aggregates and caches CSS/JS site-wide independently of our own
-	 * asset URLs, so an edited mavo-toc.css/.js can still serve a stale aggregate
-	 * even though register_assets() is already pointing at a fresh URL. This runs
-	 * a cheap filemtime check on every request and purges Autoptimize's cache the
+	 * Autoptimize (CSS/JS aggregation) and Swift Performance (full-page cache)
+	 * both cache site-wide, independently of our own asset URLs, so an edited
+	 * mavo-toc.css/.js can still serve a stale page even though register_assets()
+	 * is already pointing at a fresh URL — a fully-cached HTML page just keeps
+	 * referencing whatever bundle URL it had when it was cached, regardless of
+	 * what a fresh request would compute. This runs a cheap filemtime check on
+	 * every request and purges both caches (whichever are actually present) the
 	 * moment either file actually changes on disk, so cache-busting is automatic
 	 * rather than relying on remembering a manual "clear cache" step after every
-	 * deploy.
+	 * deploy. Cloudflare's edge cache sits in front of both and isn't reachable
+	 * from here without API credentials this plugin doesn't have — that one
+	 * still needs a manual purge, or a Cloudflare-side rule that doesn't cache
+	 * HTML for as long as it currently seems to.
 	 */
-	public function maybe_purge_autoptimize() {
+	public function maybe_purge_caches() {
 		$fingerprint = self::asset_version( 'assets/css/mavo-toc.css' ) . '-' . self::asset_version( 'assets/js/mavo-toc.js' );
 		$stored      = get_option( self::ASSETS_FINGERPRINT_OPTION );
 
@@ -155,8 +161,16 @@ class Mavo_TOC {
 		update_option( self::ASSETS_FINGERPRINT_OPTION, $fingerprint );
 
 		// false only on the very first run (option never set yet): nothing to purge.
-		if ( false !== $stored && class_exists( 'autoptimizeCache' ) && method_exists( 'autoptimizeCache', 'clearall' ) ) {
+		if ( false === $stored ) {
+			return;
+		}
+
+		if ( class_exists( 'autoptimizeCache' ) && method_exists( 'autoptimizeCache', 'clearall' ) ) {
 			autoptimizeCache::clearall();
+		}
+
+		if ( class_exists( 'Swift_Performance_Cache' ) && method_exists( 'Swift_Performance_Cache', 'clear_all_cache' ) ) {
+			Swift_Performance_Cache::clear_all_cache();
 		}
 	}
 
