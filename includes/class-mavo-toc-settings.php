@@ -160,7 +160,146 @@ class Mavo_TOC_Settings {
 				submit_button();
 				?>
 			</form>
+
+			<hr />
+
+			<?php $this->render_shortcode_reference(); ?>
 		</div>
+		<?php
+	}
+
+	private function render_shortcode_reference() {
+		$d = Mavo_TOC::get_options();
+
+		$rows = array(
+			array(
+				'title',
+				__( 'text', 'mavo-toc' ),
+				$d['title'],
+				__( 'Heading shown above the list. Empty string hides it for that instance.', 'mavo-toc' ),
+			),
+			array(
+				'min_level',
+				'1-6',
+				(string) $d['min_level'],
+				__( 'Shallowest heading level (H1-H6) to include.', 'mavo-toc' ),
+			),
+			array(
+				'max_level',
+				'1-6',
+				(string) $d['max_level'],
+				__( 'Deepest heading level to include. Raised automatically if lower than min_level.', 'mavo-toc' ),
+			),
+			array(
+				'collapsible',
+				'true / false',
+				$d['collapsible'] ? 'true' : 'false',
+				__( 'Adds a title button that shows/hides the whole list.', 'mavo-toc' ),
+			),
+			array(
+				'collapsed',
+				'true / false',
+				$d['collapsed'] ? 'true' : 'false',
+				__( 'Starts fully collapsed (title only). Has no effect unless collapsible is also true.', 'mavo-toc' ),
+			),
+			array(
+				'sticky',
+				'true / false',
+				$d['sticky'] ? 'true' : 'false',
+				__( 'Keeps the box in view while scrolling, pinned just below the "Sticky bar CSS selector" above, and auto-collapses to its title once actually pinned.', 'mavo-toc' ),
+			),
+			array(
+				'numbered',
+				'true / false',
+				$d['numbered'] ? 'true' : 'false',
+				__( 'Renders an ordered (1. 2. 3.) list instead of a bulleted one.', 'mavo-toc' ),
+			),
+			array(
+				'smooth_scroll',
+				'true / false',
+				$d['smooth_scroll'] ? 'true' : 'false',
+				__( 'Smoothly scrolls to a heading on click instead of jumping instantly, landing below any fixed bars.', 'mavo-toc' ),
+			),
+			array(
+				'limit',
+				__( '0 or higher', 'mavo-toc' ),
+				(string) $d['limit'],
+				__( 'Max entries shown before a "Show more" toggle appears. 0 = no limit.', 'mavo-toc' ),
+			),
+			array(
+				'class',
+				__( 'text', 'mavo-toc' ),
+				'',
+				__( 'Extra CSS class added to the wrapper, for custom styling. No global default — shortcode-only.', 'mavo-toc' ),
+			),
+		);
+		?>
+		<h2><?php esc_html_e( 'Shortcode reference', 'mavo-toc' ); ?></h2>
+		<p>
+			<?php
+			printf(
+				/* translators: %s is the shortcode tag, e.g. [mavo_toc] */
+				esc_html__( 'Place %s anywhere in a post or page. Every attribute below is optional and falls back to the matching setting above when omitted.', 'mavo-toc' ),
+				'<code>[mavo_toc]</code>'
+			);
+			?>
+		</p>
+		<table class="widefat striped" style="max-width: 900px;">
+			<thead>
+				<tr>
+					<th><?php esc_html_e( 'Attribute', 'mavo-toc' ); ?></th>
+					<th><?php esc_html_e( 'Accepts', 'mavo-toc' ); ?></th>
+					<th><?php esc_html_e( 'Current default', 'mavo-toc' ); ?></th>
+					<th><?php esc_html_e( 'Description', 'mavo-toc' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( $rows as $row ) : ?>
+					<tr>
+						<td><code><?php echo esc_html( $row[0] ); ?></code></td>
+						<td><?php echo esc_html( $row[1] ); ?></td>
+						<td><code><?php echo '' === $row[2] ? esc_html__( '(empty)', 'mavo-toc' ) : esc_html( $row[2] ); ?></code></td>
+						<td><?php echo esc_html( $row[3] ); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+		<p class="description">
+			<?php
+			printf(
+				/* translators: %1$s is the exclude class name, %2$s is the settings field label */
+				esc_html__( 'To skip a single heading from the list entirely, add the class %1$s to it in the editor (configurable as "%2$s" above).', 'mavo-toc' ),
+				'<code>' . esc_html( $d['exclude_class'] ) . '</code>',
+				esc_html__( 'Exclude class', 'mavo-toc' )
+			);
+			?>
+		</p>
+
+		<h3><?php esc_html_e( 'Examples', 'mavo-toc' ); ?></h3>
+		<table class="widefat striped" style="max-width: 900px;">
+			<tbody>
+				<tr>
+					<td style="width: 40%;"><code>[mavo_toc]</code></td>
+					<td><?php esc_html_e( 'Uses every default above as-is.', 'mavo-toc' ); ?></td>
+				</tr>
+				<tr>
+					<td><code>[mavo_toc title="In this article" min_level="2" max_level="3"]</code></td>
+					<td><?php esc_html_e( 'Custom title, only H2 and H3 headings.', 'mavo-toc' ); ?></td>
+				</tr>
+				<tr>
+					<td><code>[mavo_toc sticky="true" collapsible="true" collapsed="true"]</code></td>
+					<td><?php esc_html_e( 'Floats and pins below the menu bar while scrolling, starting fully collapsed to its title.', 'mavo-toc' ); ?></td>
+				</tr>
+				<tr>
+					<td><code>[mavo_toc numbered="true" limit="8"]</code></td>
+					<td><?php esc_html_e( 'Numbered list, showing only the first 8 entries with a "Show more" toggle for the rest.', 'mavo-toc' ); ?></td>
+				</tr>
+				<tr>
+					<td><code>[mavo_toc title="" class="my-toc"]</code></td>
+					<td><?php esc_html_e( 'No title shown, with an extra CSS class for custom styling.', 'mavo-toc' ); ?></td>
+				</tr>
+			</tbody>
+		</table>
 		<?php
 	}
 }

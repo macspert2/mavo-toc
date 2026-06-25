@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,6 +86,9 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.4.3 =
+* Settings > Mavo TOC now has a full shortcode reference below the form: every attribute with its accepted values, current default (read live from your saved settings), and a description, plus five worked examples and a reminder of the exclude class.
 
 = 1.4.2 =
 * Fixed: a URL with a #heading-id loaded directly (the kind your own browser's address bar shows after clicking a TOC link, via history.pushState) triggers the *browser's own* native scroll-to-anchor before any of our JS runs, landing the heading behind the fixed menu bar. A `scroll-margin-top` CSS rule on post headings now covers that path too, not just our own click handler.
