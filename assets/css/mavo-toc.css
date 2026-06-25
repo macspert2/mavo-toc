@@ -20,7 +20,20 @@
 	box-shadow: 0 1px 6px rgba(0, 0, 0, .08);
 	padding: 1em 1.25em;
 	margin: 1.5em 0;
-	transition: box-shadow .2s ease, padding .2s ease;
+	/* Explicit so it has a real value to animate from — "auto" (the default
+	   for a block element with no width set) can't be transitioned to/from.
+	   border-box so the padding doesn't push width past that 100% regardless
+	   of whether the host theme already resets box-sizing globally. */
+	box-sizing: border-box;
+	width: 100%;
+	transition:
+		box-shadow .35s ease,
+		padding .35s ease,
+		background-color .35s ease,
+		border-radius .35s ease,
+		width .35s ease,
+		margin-left .35s ease,
+		margin-right .35s ease;
 }
 
 .mavo-toc--sticky {
@@ -62,6 +75,7 @@
 	color: var(--mavo-blue, #4e74a5);
 	font-weight: 600;
 	font-size: 1.1em;
+	transition: font-size .35s ease, padding .35s ease, margin .35s ease;
 }
 
 /* The title and toggle buttons are real <button> elements, so without this the
@@ -121,6 +135,14 @@
 .mavo-toc__list .mavo-toc__list {
 	list-style: disc;
 	margin-top: 0.25em;
+}
+
+/* Nested lists already show their native marker (the rule above); this is
+   only for the top-level list, which otherwise has none. `revert` picks
+   disc/decimal automatically depending on whether it's a <ul> or <ol>. */
+.mavo-toc--markers .mavo-toc__body > .mavo-toc__list {
+	padding-left: 1.25em;
+	list-style: revert;
 }
 
 .mavo-toc__item {

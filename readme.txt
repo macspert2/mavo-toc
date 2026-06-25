@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.4.3
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,7 +65,8 @@ Attributes:
 * `collapsible` - `true`/`false`, adds a toggle to show/hide the list.
 * `collapsed` - `true`/`false`, whether it starts collapsed (requires collapsible).
 * `sticky` - `true`/`false`, keeps the box in view while scrolling (CSS position: sticky).
-* `numbered` - `true`/`false`, ordered vs. unordered list.
+* `numbered` - `true`/`false`, ordered (`ol`) vs. unordered (`ul`) list.
+* `markers` - `true`/`false`, shows the bullet/number in front of each top-level entry (nested entries always show theirs). Combine with `numbered` for visible 1. 2. 3. numbering.
 * `smooth_scroll` - `true`/`false`, smooth-scrolls to the target heading on click.
 * `limit` - max entries shown before a "Show more" toggle appears. `0` = no limit.
 * `class` - extra CSS class added to the wrapper.
@@ -86,6 +87,12 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.5.1 =
+* The transition into "stuck and collapsed" (looking like an extension of the menu bar) is now a real, visible animation: width, the full-bleed margins, border-radius, and background now ease over 0.35s instead of snapping instantly, with the title's font-size/padding/margin easing alongside. Required making width and box-sizing explicit on the TOC (previously relying on the browser's unanimatable default "auto" sizing) — verified directly that this doesn't change its normal (non-stuck) appearance or cause any overflow.
+
+= 1.5.0 =
+* Added a `markers` shortcode attribute (and matching "Show bullets/numbers" setting) to show the bullet or number in front of top-level entries, off by default to match prior behaviour. Nested sub-entries already showed theirs and are unaffected.
 
 = 1.4.3 =
 * Settings > Mavo TOC now has a full shortcode reference below the form: every attribute with its accepted values, current default (read live from your saved settings), and a description, plus five worked examples and a reminder of the exclude class.

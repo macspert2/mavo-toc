@@ -36,6 +36,7 @@ class Mavo_TOC_Settings {
 			'collapsed'           => __( 'Collapsed by default', 'mavo-toc' ),
 			'sticky'              => __( 'Sticky while scrolling', 'mavo-toc' ),
 			'numbered'            => __( 'Numbered list', 'mavo-toc' ),
+			'markers'             => __( 'Show bullets/numbers', 'mavo-toc' ),
 			'smooth_scroll'       => __( 'Smooth scroll to heading', 'mavo-toc' ),
 			'limit'               => __( 'Limit before "Show more"', 'mavo-toc' ),
 			'exclude_class'       => __( 'Exclude class', 'mavo-toc' ),
@@ -69,6 +70,7 @@ class Mavo_TOC_Settings {
 			'collapsed'           => ! empty( $input['collapsed'] ),
 			'sticky'              => ! empty( $input['sticky'] ),
 			'numbered'            => ! empty( $input['numbered'] ),
+			'markers'             => ! empty( $input['markers'] ),
 			'smooth_scroll'       => ! empty( $input['smooth_scroll'] ),
 			'limit'               => isset( $input['limit'] ) ? max( 0, (int) $input['limit'] ) : $defaults['limit'],
 			'exclude_class'       => isset( $input['exclude_class'] ) ? sanitize_html_class( $input['exclude_class'] ) : $defaults['exclude_class'],
@@ -212,7 +214,13 @@ class Mavo_TOC_Settings {
 				'numbered',
 				'true / false',
 				$d['numbered'] ? 'true' : 'false',
-				__( 'Renders an ordered (1. 2. 3.) list instead of a bulleted one.', 'mavo-toc' ),
+				__( 'Uses an ordered list (ol) instead of an unordered one (ul). Combine with markers to actually show the numbers.', 'mavo-toc' ),
+			),
+			array(
+				'markers',
+				'true / false',
+				$d['markers'] ? 'true' : 'false',
+				__( 'Shows the bullet (or number, with numbered) in front of each top-level entry. Nested sub-entries always show theirs.', 'mavo-toc' ),
 			),
 			array(
 				'smooth_scroll',
@@ -291,8 +299,8 @@ class Mavo_TOC_Settings {
 					<td><?php esc_html_e( 'Floats and pins below the menu bar while scrolling, starting fully collapsed to its title.', 'mavo-toc' ); ?></td>
 				</tr>
 				<tr>
-					<td><code>[mavo_toc numbered="true" limit="8"]</code></td>
-					<td><?php esc_html_e( 'Numbered list, showing only the first 8 entries with a "Show more" toggle for the rest.', 'mavo-toc' ); ?></td>
+					<td><code>[mavo_toc numbered="true" markers="true" limit="8"]</code></td>
+					<td><?php esc_html_e( 'Visibly numbered list (1. 2. 3. ...), showing only the first 8 entries with a "Show more" toggle for the rest.', 'mavo-toc' ); ?></td>
 				</tr>
 				<tr>
 					<td><code>[mavo_toc title="" class="my-toc"]</code></td>

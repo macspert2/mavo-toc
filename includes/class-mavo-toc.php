@@ -92,6 +92,7 @@ class Mavo_TOC {
 			'collapsed'           => false,
 			'sticky'              => false,
 			'numbered'            => false,
+			'markers'             => false,
 			'smooth_scroll'       => true,
 			'limit'               => 0,
 			'exclude_class'       => 'mavo-toc-skip',
@@ -196,6 +197,7 @@ class Mavo_TOC {
 				'collapsed'     => $options['collapsed'] ? 'true' : 'false',
 				'sticky'        => $options['sticky'] ? 'true' : 'false',
 				'numbered'      => $options['numbered'] ? 'true' : 'false',
+				'markers'       => $options['markers'] ? 'true' : 'false',
 				'smooth_scroll' => $options['smooth_scroll'] ? 'true' : 'false',
 				'limit'         => $options['limit'],
 				'class'         => '',
@@ -211,6 +213,7 @@ class Mavo_TOC {
 		$atts['collapsed']     = filter_var( $atts['collapsed'], FILTER_VALIDATE_BOOLEAN );
 		$atts['sticky']        = filter_var( $atts['sticky'], FILTER_VALIDATE_BOOLEAN );
 		$atts['numbered']      = filter_var( $atts['numbered'], FILTER_VALIDATE_BOOLEAN );
+		$atts['markers']       = filter_var( $atts['markers'], FILTER_VALIDATE_BOOLEAN );
 		$atts['smooth_scroll'] = filter_var( $atts['smooth_scroll'], FILTER_VALIDATE_BOOLEAN );
 
 		wp_enqueue_style( 'mavo-toc' );
@@ -336,6 +339,9 @@ class Mavo_TOC {
 		}
 		if ( $atts['collapsible'] && $atts['collapsed'] ) {
 			$classes[] = 'mavo-toc--collapsed';
+		}
+		if ( $atts['markers'] ) {
+			$classes[] = 'mavo-toc--markers';
 		}
 		if ( ! empty( $atts['class'] ) ) {
 			$classes[] = sanitize_html_class( $atts['class'] );
