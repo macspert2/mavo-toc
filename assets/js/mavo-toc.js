@@ -84,7 +84,7 @@
 			} );
 			body._mavoTocHideTimer = setTimeout( function () {
 				body.hidden = true;
-			}, 400 );
+			}, 4000 );
 		} else {
 			body.hidden = false;
 			body.style.maxHeight = body.scrollHeight + 'px';

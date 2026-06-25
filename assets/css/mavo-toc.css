@@ -18,7 +18,7 @@
 	background: var(--mavo-bg, #fff);
 	border-radius: 6px;
 	box-shadow: 0 1px 6px rgba(0, 0, 0, .08);
-	padding: 1em 1.25em;
+	padding: 1em 1.25em 0;
 	margin: 1.5em 0;
 	/* Explicit so it has a real value to animate from — "auto" (the default
 	   for a block element with no width set) can't be transitioned to/from.
