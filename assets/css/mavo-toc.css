@@ -134,22 +134,50 @@
 	padding-left: 1.25em;
 }
 
+/* No markers by default: nesting is shown by indentation (the padding-left
+   above) alone. list-style:none is applied to every level, not just the top
+   one, so a multi-level TOC doesn't sprout stray bullets on its sub-entries. */
 .mavo-toc__list {
 	padding-left: 0;
 	list-style: none;
 }
 
 .mavo-toc__list .mavo-toc__list {
-	list-style: disc;
 	margin-top: 0.25em;
 }
 
-/* Nested lists already show their native marker (the rule above); this is
-   only for the top-level list, which otherwise has none. `revert` picks
-   disc/decimal automatically depending on whether it's a <ul> or <ol>. */
+/* markers="true": show a marker on every entry at every level, with a distinct
+   type per depth so the hierarchy still reads clearly instead of repeating one
+   bullet. The whole tree is either <ul> or <ol> depending on `numbered`, so
+   each variant is keyed off the element type. The top-level list needs its own
+   padding-left here (it's 0 above) to give the marker room; nested levels
+   already have it. Depths beyond the third reuse the third's type. */
 .mavo-toc--markers .mavo-toc__body > .mavo-toc__list {
 	padding-left: 1.25em;
-	list-style: revert;
+}
+
+.mavo-toc--markers ul.mavo-toc__list {
+	list-style-type: disc;
+}
+
+.mavo-toc--markers ul.mavo-toc__list ul.mavo-toc__list {
+	list-style-type: circle;
+}
+
+.mavo-toc--markers ul.mavo-toc__list ul.mavo-toc__list ul.mavo-toc__list {
+	list-style-type: square;
+}
+
+.mavo-toc--markers ol.mavo-toc__list {
+	list-style-type: decimal;
+}
+
+.mavo-toc--markers ol.mavo-toc__list ol.mavo-toc__list {
+	list-style-type: lower-alpha;
+}
+
+.mavo-toc--markers ol.mavo-toc__list ol.mavo-toc__list ol.mavo-toc__list {
+	list-style-type: lower-roman;
 }
 
 .mavo-toc__item {

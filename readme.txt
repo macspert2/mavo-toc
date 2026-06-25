@@ -4,7 +4,7 @@ Tags: table of contents, toc, shortcode, headings
 Requires at least: 5.8
 Tested up to: 6.5
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,7 +65,7 @@ Attributes:
 * `collapsed` - `true`/`false`, whether it starts collapsed (requires collapsible).
 * `sticky` - `true`/`false`, keeps the box in view while scrolling (CSS position: sticky).
 * `numbered` - `true`/`false`, ordered (`ol`) vs. unordered (`ul`) list.
-* `markers` - `true`/`false`, shows the bullet/number in front of each top-level entry (nested entries always show theirs). Combine with `numbered` for visible 1. 2. 3. numbering.
+* `markers` - `true`/`false`, shows a marker in front of every entry at every level, with a distinct type per depth (disc/circle/square, or 1./a./i. with `numbered`). Off shows none, leaving levels distinguished by indentation only.
 * `smooth_scroll` - `true`/`false`, smooth-scrolls to the target heading on click.
 * `limit` - max entries shown before a "Show more" toggle appears. `0` = no limit.
 * `class` - extra CSS class added to the wrapper.
@@ -86,6 +86,9 @@ that heading's CSS class in the editor.
 4. Add `[mavo_toc]` to any post or page.
 
 == Changelog ==
+
+= 1.6.1 =
+* Fixed markers being inconsistent across levels: sub-entries used to always show a bullet even with markers off. Markers are now all-or-nothing — with markers off no entry shows one (levels read by indentation alone), and with markers on every level shows one, using a distinct type per depth (disc/circle/square for bulleted lists, 1./a./i. for numbered ones).
 
 = 1.6.0 =
 * Removed the "Show subheadings"/"Hide subheadings" progressive-reveal control. Every heading level within `min_level`/`max_level` now shows at once, nested under its parent, instead of starting collapsed to the shallowest level — use those two attributes to control how much of the range is included at all.

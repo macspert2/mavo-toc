@@ -220,7 +220,7 @@ class Mavo_TOC_Settings {
 				'markers',
 				'true / false',
 				$d['markers'] ? 'true' : 'false',
-				__( 'Shows the bullet (or number, with numbered) in front of each top-level entry. Nested sub-entries always show theirs.', 'mavo-toc' ),
+				__( 'Shows a marker in front of every entry (bullets, or numbers with numbered), using a different style per nesting level. Off shows none, leaving levels distinguished by indentation only.', 'mavo-toc' ),
 			),
 			array(
 				'smooth_scroll',
