@@ -105,10 +105,11 @@
 		} else {
 			body.hidden = false;
 			body.style.maxHeight = body.scrollHeight + 'px';
-			// Chrome scroll anchoring fires a scroll event to compensate for the
-			// layout shift caused by the body appearing. Flag it so the auto-collapse
-			// listener ignores that one synthetic event.
-			toc._mavoTocIgnoreNextScroll = true;
+			// The max-height CSS transition causes a layout reflow on every animation
+			// frame for ~500ms. Chrome scroll anchoring fires a compensating scroll
+			// event on each frame, which would immediately re-collapse the TOC. Suppress
+			// the auto-collapse listener for the full animation duration.
+			toc._mavoTocIgnoreScrollUntil = Date.now() + 580;
 			body._mavoTocHideTimer = setTimeout( function () {
 				// Released once fully open so later content changes (Show more,
 				// Show subheadings) aren't clipped at this now-stale height.
@@ -377,10 +378,10 @@
 					var moved = Math.abs( currentScrollY - lastScrollY ) > 5;
 					lastScrollY = currentScrollY;
 
-					// Ignore the one scroll event that Chrome's scroll anchoring fires
-					// immediately after the body appears (layout shift compensation).
-					if ( toc._mavoTocIgnoreNextScroll ) {
-						toc._mavoTocIgnoreNextScroll = false;
+					// During the expand animation Chrome scroll anchoring fires a
+					// compensating scroll event on each animation frame — suppress
+					// auto-collapse for the full animation window.
+					if ( toc._mavoTocIgnoreScrollUntil && Date.now() < toc._mavoTocIgnoreScrollUntil ) {
 						return;
 					}
 
