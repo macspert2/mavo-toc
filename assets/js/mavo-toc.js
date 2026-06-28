@@ -105,6 +105,10 @@
 		} else {
 			body.hidden = false;
 			body.style.maxHeight = body.scrollHeight + 'px';
+			// Chrome scroll anchoring fires a scroll event to compensate for the
+			// layout shift caused by the body appearing. Flag it so the auto-collapse
+			// listener ignores that one synthetic event.
+			toc._mavoTocIgnoreNextScroll = true;
 			body._mavoTocHideTimer = setTimeout( function () {
 				// Released once fully open so later content changes (Show more,
 				// Show subheadings) aren't clipped at this now-stale height.
@@ -372,6 +376,13 @@
 					var currentScrollY = window.scrollY;
 					var moved = Math.abs( currentScrollY - lastScrollY ) > 5;
 					lastScrollY = currentScrollY;
+
+					// Ignore the one scroll event that Chrome's scroll anchoring fires
+					// immediately after the body appears (layout shift compensation).
+					if ( toc._mavoTocIgnoreNextScroll ) {
+						toc._mavoTocIgnoreNextScroll = false;
+						return;
+					}
 
 					if ( moved && toc.classList.contains( 'mavo-toc--stuck' ) && ! toc.classList.contains( 'mavo-toc--collapsed' ) ) {
 						setCollapsed( toc, true, titleBtn );
